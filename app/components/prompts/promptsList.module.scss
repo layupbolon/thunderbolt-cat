@@ -1,0 +1,64 @@
+.container {
+  padding: 0 20px;
+
+  p {
+    font-size: 1rem;
+    color: #fff;
+  }
+}
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.promptList {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.promptContent {
+  background-color: #242526;
+  border-radius: 0.8rem;
+  box-shadow: 0 5px 40px #0003;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cardBody {
+  padding-bottom: 0;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.promptHeader {
+  align-items: center;
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.promptDetail {
+  margin-bottom: 0;
+  font-size: smaller;
+  line-height: 1.66;
+}
+
+.cardFoot {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding: 1rem;
+}
+
+.tag {
+  align-items: center;
+  border: 1px solid #a4a6a8;
+  border-radius: 12px;
+  cursor: default;
+  display: inline-flex;
+  font-size: 0.675rem;
+  margin-bottom: 6px !important;
+  margin-right: 6px;
+}

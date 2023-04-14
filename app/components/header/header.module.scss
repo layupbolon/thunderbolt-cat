@@ -1,0 +1,32 @@
+.header {
+  position: fixed;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--header-height);
+  background-color: transparent;
+  font-size: 15px;
+
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-left: 1rem;
+  }
+
+  .back {
+    margin-right: 1rem;
+
+    &:hover{
+      cursor: pointer;
+    }
+  }
+}
