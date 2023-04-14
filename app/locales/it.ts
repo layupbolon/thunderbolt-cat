@@ -54,6 +54,7 @@ const it: LocaleType = {
     Revert: 'Revert',
   },
   Settings: {
+    Account: 'Cuenta',
     Title: 'Impostazioni',
     SubTitle: 'Tutte le impostazioni',
     Actions: {
