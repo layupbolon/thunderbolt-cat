@@ -94,11 +94,11 @@ export async function requestChatStream(
   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
 
   try {
-    const res = await fetch('/api/aigc-chat-stream', {
+    const res = await fetch('/api/chat-stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        path: 'v1/chat/completions/stream',
+        path: 'v1/chat/completions',
         ...getHeaders(),
       },
       body: JSON.stringify(req),
