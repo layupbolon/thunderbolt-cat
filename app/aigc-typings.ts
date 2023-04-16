@@ -40,3 +40,13 @@ export interface PromptCategory {
   updateTime: number[];
   color?: string;
 }
+
+export interface Prompt {
+  act: string;
+  categoryId: number;
+  createTime: string;
+  id: number;
+  prompt: string;
+  updateTime: string;
+  userId: string;
+}

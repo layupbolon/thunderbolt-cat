@@ -1,4 +1,4 @@
-import type { BaseResponse, LoginResult, PromptCategory } from './aigc-typings';
+import type { BaseResponse, LoginResult, Prompt, PromptCategory } from './aigc-typings';
 import { TOKEN_STORAGE_KEY } from './constant';
 
 async function fetchImpl({
@@ -14,15 +14,12 @@ async function fetchImpl({
     method,
     headers: {
       'Content-Type': 'application/json',
-      // Authorization: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
-      Authorization:
-        'eyJhbGciOiJIUzI1NiJ9.eyJzZW5kZXJBY2NvdW50IjoiZGNlMWE3NDQ1M2Q0OGYxMTc2NjAzN2M0OTgwZTE2N2IiLCJ2aXNpdExpbWl0IjoxMDAwLCJvcGVuSWQiOiIiLCJ2aXBUeXBlIjoxLCJpZCI6OSwiYWNjb3VudCI6IjE4MDE5MDM3NzY3IiwicmVnaXN0RGF0ZSI6IjIwMjMtMDMtMjkgMjI6NTY6MDciLCJ2YWxpZGF0ZURhdGUiOiIyMDIzLTA0LTAxIDIyOjU2OjEwIiwic3ViIjoiMTgwMTkwMzc3NjciLCJpYXQiOjE2ODE0MzU3MjcsImV4cCI6MTY4MTQ3MTcyN30.UQgApeRAyP7p-MTvIN6SWIigbxB2Y-ubSg72GgTJyNQ',
     },
     body: body ? JSON.stringify(body) : undefined,
   });
+
   const innerResponse = (await res.json()) as any;
-  console.log('innerResponse: ', innerResponse);
-  if (innerResponse.status !== 200) {
+  if (res.status !== 200) {
     // if (innerResponse.status === 403) {
     //   window.location.href = '/login';
     // }
@@ -79,10 +76,20 @@ export async function getUserByToken(token: string): Promise<{ jwt: string }> {
   });
 }
 
-export async function getPromptList(): Promise<BaseResponse<PromptCategory[]>> {
+export async function getPromptCategoryList(): Promise<BaseResponse<PromptCategory[]>> {
   return fetchImpl({
-    url: '/api/prompt/suibian',
+    url: '/api/prompt-category-list',
     method: 'GET',
+  });
+}
+
+export async function getPromptList(categoryId: number): Promise<BaseResponse<Prompt[]>> {
+  return fetchImpl({
+    url: '/api/prompt-list',
+    method: 'GET',
+    body: {
+      categoryId,
+    },
   });
 }
 

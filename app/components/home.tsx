@@ -86,7 +86,7 @@ function _Home() {
 
   return (
     <div className={styles['tight-container']}>
-      <Auth />
+      {/* <Auth /> */}
       <Header
         back
         rightSlot={

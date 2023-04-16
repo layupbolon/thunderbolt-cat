@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import styles from './landing.module.scss';
 import { Header } from '../header/Header';
 import { Prompts } from '../prompts/PromptsList';
+import { LOGO_SLOGAN } from '@/app/constant';
 
 export const Landing = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ export const Landing = () => {
       <div className={styles.bg}></div>
       <Header />
 
-      <h1 className={styles.title}>聊天熊猫</h1>
+      <h1 className={styles.title}>{LOGO_SLOGAN}</h1>
       <h2 className={styles.subTitle}>ChatGPT 国内入口，无需魔法直接使用</h2>
       <div className={styles.btns}>
         <Button

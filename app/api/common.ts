@@ -11,10 +11,13 @@ export async function requestOpenai(req: NextRequest) {
 
   console.log('[Proxy] ', openaiPath);
 
-  return fetch(`${PROTOCOL}://${BASE_URL}/${openaiPath}`, {
+  // return fetch(`${PROTOCOL}://${BASE_URL}/${openaiPath}`, {
+  return fetch(`http://45.32.94.79:8080/${openaiPath}`, {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      // Authorization: `Bearer ${apiKey}`,
+      Authorization:
+        'eyJhbGciOiJIUzI1NiJ9.eyJzZW5kZXJBY2NvdW50IjoiZGNlMWE3NDQ1M2Q0OGYxMTc2NjAzN2M0OTgwZTE2N2IiLCJ2aXNpdExpbWl0IjoxMDAwLCJvcGVuSWQiOiIiLCJ2aXBUeXBlIjoxLCJpZCI6OSwiYWNjb3VudCI6IjE4MDE5MDM3NzY3IiwicmVnaXN0RGF0ZSI6IjIwMjMtMDMtMjkgMjI6NTY6MDciLCJ2YWxpZGF0ZURhdGUiOiIyMDIzLTA0LTAxIDIyOjU2OjEwIiwic3ViIjoiMTgwMTkwMzc3NjciLCJpYXQiOjE2ODE2MTE2NTMsImV4cCI6MTY4MTY0NzY1M30.Uxi50vzpT8nu4OO67fqQ_QgdMRm9VWGudlYTAMn-OLE',
     },
     method: req.method,
     body: req.body,

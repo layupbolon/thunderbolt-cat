@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import styles from './header.module.scss';
 import ChatGPTIcon from '../../icons/chatgpt.svg';
 import LeftIcon from '../../icons/left.svg';
+import { LOGO_SLOGAN } from '@/app/constant';
 
 interface Props {
   back?: boolean;
@@ -14,7 +15,12 @@ export const Header = (props: Props) => {
   const router = useRouter();
   return (
     <header className={styles.header}>
-      <span className={styles.logo}>
+      <span
+        className={styles.logo}
+        onClick={() => {
+          router.replace('/');
+        }}
+      >
         {props.back && (
           <span
             className={styles.back}
@@ -27,7 +33,7 @@ export const Header = (props: Props) => {
         )}
 
         <ChatGPTIcon />
-        <h1>聊天熊猫</h1>
+        <h1>{LOGO_SLOGAN}</h1>
       </span>
 
       {props.rightSlot}
