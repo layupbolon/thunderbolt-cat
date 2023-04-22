@@ -21,10 +21,11 @@ export const Landing = () => {
         <Button
           style={{ width: '150px', height: '50px', fontSize: '18px' }}
           size={'lg'}
-          bg={'blue.400'}
+          bg={'#7928CA'}
           color={'white'}
+          bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
           _hover={{
-            bg: 'blue.500',
+            bg: 'linear(to-l, #2d9164, #131f62)',
           }}
           onClick={() => {
             router.push('/chat');

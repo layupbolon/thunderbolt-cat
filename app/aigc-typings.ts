@@ -18,13 +18,16 @@ export interface UserInfo {
   country: string;
   avatarUrl: string;
   gender: number;
-  registDate: string;
-  dateOfBirth: null;
+  registDate: number[];
+  dateOfBirth: number[];
   createTime: string;
   updateTime: string;
   senderAccount: string;
-  validateDate: string;
+  validateDate: number[];
   state: number;
+  visitCount: number;
+  visitLimit: number;
+  vipType: number;
 }
 
 export interface LoginResult {
@@ -49,4 +52,16 @@ export interface Prompt {
   prompt: string;
   updateTime: string;
   userId: string;
+}
+
+export interface PackageInfo {
+  id: number;
+  planName: string;
+  planDescription: string;
+  price: number;
+  type: number;
+  count: number;
+  day: number;
+  createTime: number[];
+  updateTime: number[];
 }

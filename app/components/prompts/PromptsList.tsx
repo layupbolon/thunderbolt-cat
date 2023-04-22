@@ -12,9 +12,7 @@ const generateRandomColor = () => {
   return `rgb(${r},${g},${b})`;
 };
 
-interface Props {}
-
-export const Prompts: React.FC<Props> = ({}) => {
+export const Prompts: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
   const [promptCategories, setPromptCategories] = useState<PromptCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -41,6 +39,8 @@ export const Prompts: React.FC<Props> = ({}) => {
       .then((res) => {
         if (res && res.result && res.result.length) {
           setPrompts(res.result);
+        } else {
+          setPrompts([]);
         }
       })
       .catch((err) => {
@@ -69,15 +69,10 @@ export const Prompts: React.FC<Props> = ({}) => {
             <div className={styles.cardBody}>
               <div className={styles.promptHeader}>
                 <h4 className={styles.promptTitle}>{prompt.act}</h4>
-                <Button>使用</Button>
+                <Button size="xs">使用</Button>
               </div>
-              <p className={styles.promptDetail}>{prompt.prompt}</p>
+              <span className={styles.promptDetail}>{prompt.prompt}</span>
             </div>
-            <ul className={styles.cardFoot}>
-              <li className={styles.tag}>
-                {promptCategories.find((t) => t.id === prompt.categoryId)?.category}
-              </li>
-            </ul>
           </li>
         ))}
       </ul>

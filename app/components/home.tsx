@@ -19,7 +19,6 @@ import { Header } from './header/Header';
 import { getPayUrl } from '../aigc-tools-requests';
 import { showModal } from './ui-lib';
 import { Auth } from '../components/auth/Auth';
-import { Avatar, Button, HStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 
 export function Loading(props: { noLogo?: boolean }) {
@@ -87,28 +86,7 @@ function _Home() {
   return (
     <div className={styles['tight-container']}>
       {/* <Auth /> */}
-      <Header
-        back
-        rightSlot={
-          <HStack>
-            <Button
-              size={'md'}
-              bg={'#7928CA'}
-              color={'white'}
-              bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
-              _hover={{
-                bg: 'linear(to-l, #2d9164, #131f62)',
-              }}
-              onClick={() => {
-                router.push('/upgrade');
-              }}
-            >
-              升级会员
-            </Button>
-            <Avatar bg="rgb(29, 147, 171)" size={'sm'} style={{ marginLeft: '1rem' }} />
-          </HStack>
-        }
-      />
+      <Header back />
       <div className={styles.sidebar + ` ${showSideBar && styles['sidebar-show']}`}>
         <div
           className={styles['sidebar-body']}

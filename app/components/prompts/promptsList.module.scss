@@ -12,6 +12,7 @@
 }
 
 .promptList {
+  margin-top: 2rem;
   display: grid;
   gap: 24px;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -39,9 +40,18 @@
   margin-bottom: 12px;
 }
 
+.promptTitle{
+  color: rgb(29, 147, 171);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-right: 0.25rem;
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
 .promptDetail {
   margin-bottom: 0;
-  font-size: smaller;
+  font-size: 0.7rem;
   line-height: 1.66;
 }
 

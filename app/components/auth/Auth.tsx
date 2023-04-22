@@ -24,11 +24,12 @@ export const Auth: React.FC<Props> = ({}) => {
     const storageToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (!storageToken) {
       setModalVisible(true);
-    } else {
-      getUserByToken(storageToken).then((res) => {
-        console.log('res: ', res);
-      });
     }
+    // else {
+    //   getUserByToken().then((res) => {
+    //     console.log('res: ', res);
+    //   });
+    // }
   }, []);
 
   return (

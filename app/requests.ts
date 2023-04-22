@@ -1,6 +1,5 @@
 import type { ChatRequest, ChatResponse } from './api/openai/typing';
 import { Message, ModelConfig, useAccessStore, useChatStore } from './store';
-import { showToast } from './components/ui-lib';
 
 const TIME_OUT_MS = 60000;
 
@@ -95,15 +94,16 @@ export async function requestChatStream(
   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
 
   try {
-    const res = await fetch('/api/chat-stream', {
+    const res = await fetch('/api/aigc-chat-stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        path: 'v1/chat/completions',
-        ...getHeaders(),
+        path: 'v1/chat/completions/stream',
+        // ...getHeaders(),
       },
       body: JSON.stringify(req),
       signal: controller.signal,
+      credentials: 'include',
     });
     clearTimeout(reqTimeoutId);
 
@@ -141,7 +141,7 @@ export async function requestChatStream(
       }
 
       finish();
-    } else if (res.status === 401) {
+    } else if (res.status === 401 || res.status === 403) {
       console.error('Unauthorized');
       options?.onError(new Error('Unauthorized'), res.status);
     } else {

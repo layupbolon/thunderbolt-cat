@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { type ChatCompletionResponseMessage } from 'openai';
+import { CreateToastFnReturn, useToast } from '@chakra-ui/react';
 import { ControllerPool, requestChatStream, requestWithPrompt } from '../requests';
 import { isMobileScreen, trimTopic } from '../utils';
 
@@ -199,7 +200,7 @@ interface ChatStore {
   deleteSession: () => void;
   currentSession: () => ChatSession;
   onNewMessage: (message: Message) => void;
-  onUserInput: (content: string) => Promise<void>;
+  onUserInput: (content: string, toast: CreateToastFnReturn) => Promise<void>;
   summarizeSession: () => void;
   updateStat: (message: Message) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
@@ -360,7 +361,7 @@ export const useChatStore = create<ChatStore>()(
         get().summarizeSession();
       },
 
-      async onUserInput(content) {
+      async onUserInput(content, toast) {
         const userMessage: Message = createMessage({
           role: 'user',
           content,
@@ -399,8 +400,17 @@ export const useChatStore = create<ChatStore>()(
             }
           },
           onError(error, statusCode) {
-            if (statusCode === 401) {
+            if (statusCode === 401 || statusCode === 403) {
+              window.location.href = '/login';
               botMessage.content = Locale.Error.Unauthorized;
+            } else if (statusCode === 402) {
+              botMessage.content = '会员计划已用完！请升级会员计划！';
+              toast({
+                title: '会员计划已用完！请升级会员计划！',
+                status: 'warning',
+                duration: 9000,
+                isClosable: true,
+              });
             } else {
               botMessage.content += '\n\n' + Locale.Store.Error;
             }
@@ -485,11 +495,11 @@ export const useChatStore = create<ChatStore>()(
           session.topic === DEFAULT_TOPIC &&
           countMessages(session.messages) >= SUMMARIZE_MIN_LEN
         ) {
-          requestWithPrompt(session.messages, Locale.Store.Prompt.Topic).then((res) => {
-            get().updateCurrentSession(
-              (session) => (session.topic = res ? trimTopic(res) : DEFAULT_TOPIC),
-            );
-          });
+          // requestWithPrompt(session.messages, Locale.Store.Prompt.Topic).then((res) => {
+          //   get().updateCurrentSession(
+          //     (session) => (session.topic = res ? trimTopic(res) : DEFAULT_TOPIC),
+          //   );
+          // });
         }
 
         const config = get().config;
@@ -532,7 +542,10 @@ export const useChatStore = create<ChatStore>()(
                   session.lastSummarizeIndex = lastSummarizeIndex;
                 }
               },
-              onError(error) {
+              onError(error, statusCode) {
+                if (statusCode === 401 || statusCode === 403) {
+                  window.location.href = '/login';
+                }
                 console.error('[Summarize] ', error);
               },
             },

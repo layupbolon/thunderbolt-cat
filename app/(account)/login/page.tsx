@@ -27,26 +27,34 @@ export default function SimpleCard() {
   const router = useRouter();
 
   const handleLogin = () => {
-    auth({ account: account!, password: pwd! }).then((res) => {
-      if (+res.code === 1) {
+    auth({ account: account!, password: pwd! })
+      .then((res) => {
+        if (res && res.jwt) {
+          toast({
+            title: '登录成功',
+            status: 'success',
+            duration: 1000,
+            isClosable: true,
+          });
+          localStorage.setItem(TOKEN_STORAGE_KEY, res.jwt);
+          router.replace('/');
+        } else {
+          toast({
+            title: `登录失败`,
+            status: 'error',
+            duration: 1000,
+            isClosable: true,
+          });
+        }
+      })
+      .catch((err) => {
         toast({
-          title: '登录成功',
-          status: 'success',
+          title: `登录失败，${err.message}`,
+          status: 'error',
           duration: 1000,
           isClosable: true,
         });
-        localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(res.result?.user));
-        localStorage.setItem(TOKEN_STORAGE_KEY, res.result.token);
-        router.replace('/');
-      } else {
-        toast({
-          title: `登录失败，${res.message}`,
-          status: 'success',
-          duration: 1000,
-          isClosable: true,
-        });
-      }
-    });
+      });
   };
 
   return (

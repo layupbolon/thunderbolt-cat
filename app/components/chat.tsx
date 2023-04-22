@@ -18,6 +18,7 @@ import {
 
 import dynamic from 'next/dynamic';
 import { useDebounce, useDebouncedCallback } from 'use-debounce';
+import { useToast } from '@chakra-ui/react';
 
 import { Prompt, usePromptStore } from '../store/prompt';
 import Locale from '../locales';
@@ -340,6 +341,8 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
   const { scrollRef, setAutoScroll } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(false);
 
+  const toast = useToast();
+
   const onChatBodyScroll = (e: HTMLElement) => {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 20;
     setHitBottom(isTouchBottom);
@@ -413,7 +416,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
   const onUserSubmit = () => {
     if (userInput.length <= 0) return;
     setIsLoading(true);
-    chatStore.onUserInput(userInput).then(() => setIsLoading(false));
+    chatStore.onUserInput(userInput, toast).then(() => setIsLoading(false));
     setBeforeInput(userInput);
     setUserInput('');
     setPromptHints([]);
@@ -456,7 +459,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
     for (let i = botIndex; i >= 0; i -= 1) {
       if (messages[i].role === 'user') {
         setIsLoading(true);
-        chatStore.onUserInput(messages[i].content).then(() => setIsLoading(false));
+        chatStore.onUserInput(messages[i].content, toast).then(() => setIsLoading(false));
         chatStore.updateCurrentSession((session) => session.messages.splice(i, 2));
         inputRef.current?.focus();
         return;
