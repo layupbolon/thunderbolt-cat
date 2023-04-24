@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { register, requestValidateCode } from '../../aigc-tools-requests';
 
 export default function SignupCard() {
@@ -34,6 +34,7 @@ export default function SignupCard() {
   const [timerId, setTimerId] = useState<NodeJS.Timer>();
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     return () => {
@@ -87,7 +88,7 @@ export default function SignupCard() {
   };
 
   const handleRegister = () => {
-    register(account!, pwd!, validateCode!)
+    register(account!, pwd!, validateCode!, searchParams.get('invite'))
       .then(() => {
         toast({
           title: '注册成功',

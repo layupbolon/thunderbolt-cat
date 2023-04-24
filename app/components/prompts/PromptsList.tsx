@@ -4,6 +4,8 @@ import { PromptTag } from './PromptTag';
 import { getPromptCategoryList, getPromptList } from '../../aigc-tools-requests';
 import { Prompt, PromptCategory } from '@/app/aigc-typings';
 import { Button } from '@chakra-ui/react';
+import { useChatStore } from '../../store';
+import { useRouter } from 'next/navigation';
 
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
@@ -16,6 +18,8 @@ export const Prompts: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
   const [promptCategories, setPromptCategories] = useState<PromptCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [createNewSession] = useChatStore((state) => [state.newSession]);
+  const router = useRouter();
 
   useEffect(() => {
     getPromptCategoryList()
@@ -57,7 +61,13 @@ export const Prompts: React.FC = () => {
             key={tag.id}
             color={tag.color!}
             name={tag.category}
-            onClick={() => setSelectedCategoryId(tag.id)}
+            onClick={() => {
+              if (tag.id !== selectedCategoryId) {
+                setSelectedCategoryId(tag.id);
+              } else {
+                setSelectedCategoryId(undefined);
+              }
+            }}
             seleced={selectedCategoryId === tag.id}
           />
         ))}
@@ -69,7 +79,18 @@ export const Prompts: React.FC = () => {
             <div className={styles.cardBody}>
               <div className={styles.promptHeader}>
                 <h4 className={styles.promptTitle}>{prompt.act}</h4>
-                <Button size="xs">使用</Button>
+                <Button
+                  size="xs"
+                  onClick={() => {
+                    createNewSession({
+                      promptId: prompt.id + '',
+                      promptRule: prompt.act,
+                    });
+                    router.push('/chat');
+                  }}
+                >
+                  使用
+                </Button>
               </div>
               <span className={styles.promptDetail}>{prompt.prompt}</span>
             </div>

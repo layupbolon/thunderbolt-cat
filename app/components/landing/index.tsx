@@ -35,6 +35,8 @@ export const Landing = () => {
         </Button>
       </div>
 
+      <h1 className={styles.title}>咒语大全</h1>
+      <h2 className={styles.subTitle}>帮助你更便捷地使用 ChatGPT</h2>
       <Prompts />
     </div>
   );

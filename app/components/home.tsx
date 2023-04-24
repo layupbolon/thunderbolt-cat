@@ -10,16 +10,11 @@ import { ErrorBoundary } from './error';
 import styles from './home.module.scss';
 import AddIcon from '../icons/add.svg';
 import BotIcon from '../icons/bot.svg';
-import PaymentIcon from '../icons/payment.svg';
 import CloseIcon from '../icons/close.svg';
 import LoadingIcon from '../icons/three-dots.svg';
 import Locale from '../locales';
 import { useChatStore } from '../store';
 import { Header } from './header/Header';
-import { getPayUrl } from '../aigc-tools-requests';
-import { showModal } from './ui-lib';
-import { Auth } from '../components/auth/Auth';
-import { useRouter } from 'next/navigation';
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -75,7 +70,6 @@ function _Home() {
   const chatStore = useChatStore();
   const loading = !useHasHydrated();
   const [showSideBar, setShowSideBar] = useState(true);
-  const router = useRouter();
 
   useSwitchTheme();
 

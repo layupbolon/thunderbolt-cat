@@ -160,6 +160,7 @@ export interface ChatSession {
   stat: ChatStat;
   lastUpdate: string;
   lastSummarizeIndex: number;
+  promptId?: string;
 }
 
 const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -168,12 +169,15 @@ export const BOT_HELLO: Message = createMessage({
   content: Locale.Store.BotHello,
 });
 
-function createEmptySession(): ChatSession {
+function createEmptySession(selectedPrompt?: {
+  promptId: string;
+  promptRule: string;
+}): ChatSession {
   const createDate = new Date().toLocaleString();
 
   return {
     id: Date.now(),
-    topic: DEFAULT_TOPIC,
+    topic: selectedPrompt?.promptRule ?? DEFAULT_TOPIC,
     sendMemory: true,
     memoryPrompt: '',
     context: [],
@@ -185,6 +189,7 @@ function createEmptySession(): ChatSession {
     },
     lastUpdate: createDate,
     lastSummarizeIndex: 0,
+    promptId: selectedPrompt?.promptId,
   };
 }
 
@@ -196,7 +201,7 @@ interface ChatStore {
   removeSession: (index: number) => void;
   moveSession: (from: number, to: number) => void;
   selectSession: (index: number) => void;
-  newSession: () => void;
+  newSession: (selectedPrompt?: { promptId: string; promptRule: string }) => void;
   deleteSession: () => void;
   currentSession: () => ChatSession;
   onNewMessage: (message: Message) => void;
@@ -311,10 +316,10 @@ export const useChatStore = create<ChatStore>()(
         });
       },
 
-      newSession() {
+      newSession(selectedPrompt?: { promptId: string; promptRule: string }) {
         set((state) => ({
           currentSessionIndex: 0,
-          sessions: [createEmptySession()].concat(state.sessions),
+          sessions: [createEmptySession(selectedPrompt)].concat(state.sessions),
         }));
       },
 

@@ -24,6 +24,10 @@ const nextConfig = {
         destination: `${url}/v1/user/pay/notify`,
       },
       {
+        source: '/api/user/:account*/invite/url',
+        destination: `${url}/v1/user/:account*/invite/url`,
+      },
+      {
         source: '/api/user/:path*',
         destination: `${url}/v1/user/:path*`,
       },

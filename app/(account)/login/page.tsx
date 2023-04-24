@@ -6,7 +6,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Checkbox,
   Stack,
   Link,
   Button,
@@ -18,7 +17,7 @@ import {
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../aigc-tools-requests';
-import { USER_INFO_STORAGE_KEY, TOKEN_STORAGE_KEY } from '../../constant';
+import { TOKEN_STORAGE_KEY } from '../../constant';
 
 export default function SimpleCard() {
   const [account, setAccount] = useState<string>();

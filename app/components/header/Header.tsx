@@ -25,10 +25,17 @@ import {
   Image,
   Text,
   keyframes,
+  Divider,
+  Highlight,
+  Input,
+  InputGroup,
+  InputRightAddon,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
-import { getUserByToken } from '../../aigc-tools-requests';
+import { getUserByToken, getInviteUrl } from '../../aigc-tools-requests';
 import { UserInfo } from '@/app/aigc-typings';
+import { CopyIcon } from '@chakra-ui/icons';
+import { copyToClipboard } from '@/app/utils';
 
 interface Props {
   back?: boolean;
@@ -38,12 +45,18 @@ export const Header = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<UserInfo>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [inviteUrl, setInviteUrl] = useState<string>();
+  const [inviteQrCode, setInviteQrCode] = useState<string>();
   const router = useRouter();
 
   const handleGetUserByToken = useCallback(() => {
     getUserByToken()
       .then((res) => {
         setUser(res.result);
+        getInviteUrl(res.result.account).then((res) => {
+          setInviteUrl(res.result.inviteUrl);
+          setInviteQrCode(res.result.qrCode);
+        });
         setLoading(false);
       })
       .catch(() => {
@@ -105,15 +118,7 @@ export const Header = (props: Props) => {
         >
           升级会员
         </Button>
-        {/* <Avatar
-          bg="rgb(29, 147, 171)"
-          size={'sm'}
-          style={{ marginLeft: '1rem' }}
-          onClick={() => {
-            handleGetUserByToken();
-            setIsOpen(true);
-          }}
-        /> */}
+
         <Box
           as="div"
           position="relative"
@@ -145,15 +150,15 @@ export const Header = (props: Props) => {
             top={0}
           />
         </Box>
-        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>用户信息</ModalHeader>
+            <ModalHeader>用户中心</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <Center py={6}>
                 <Box
-                  maxW={'270px'}
+                  maxW={'100%'}
                   w={'full'}
                   bg={useColorModeValue('white', 'gray.800')}
                   boxShadow={'2xl'}
@@ -172,9 +177,6 @@ export const Header = (props: Props) => {
                   <Flex justify={'center'} mt={-12}>
                     <Avatar
                       size={'xl'}
-                      src={
-                        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                      }
                       css={{
                         border: '2px solid white',
                       }}
@@ -198,20 +200,33 @@ export const Header = (props: Props) => {
                     </Stack>
 
                     <Stack direction={'row'} justify={'center'} spacing={6}>
-                      <Stack spacing={0} align={'center'}>
-                        <Text fontWeight={600}>
-                          {user?.visitCount ?? 0}/{user?.visitLimit ?? 0}
-                        </Text>
-                        <Text fontSize={'sm'} color={'gray.500'}>
-                          次
-                        </Text>
-                      </Stack>
-                      <Stack spacing={0} align={'center'}>
-                        <Text fontWeight={600}>23k</Text>
-                        <Text fontSize={'sm'} color={'gray.500'}>
-                          Followers
-                        </Text>
-                      </Stack>
+                      {(user?.vipType === 0 || user?.vipType === 1) && (
+                        <Stack spacing={0} align={'center'}>
+                          <Text fontWeight={600}>
+                            {user?.visitCount ?? 0}/{user?.visitLimit ?? 0}
+                          </Text>
+                          <Text fontSize={'sm'} color={'gray.500'}>
+                            次
+                          </Text>
+                        </Stack>
+                      )}
+                      {user?.vipType === 2 &&
+                        user.validateDate &&
+                        user.validateDate.length && (
+                          <Stack spacing={0} align={'center'}>
+                            <Text fontWeight={600}>到期时间</Text>
+                            <Text fontSize={'sm'} color={'gray.500'}>
+                              {new Date(
+                                user.validateDate[0],
+                                user.validateDate[1] - 1,
+                                user.validateDate[2],
+                                user.validateDate[3],
+                                user.validateDate[4],
+                                user.validateDate[5],
+                              ).toLocaleDateString()}
+                            </Text>
+                          </Stack>
+                        )}
                     </Stack>
 
                     <Button
@@ -231,6 +246,47 @@ export const Header = (props: Props) => {
                     >
                       升级会员
                     </Button>
+
+                    <Divider css={{ marginTop: '2rem', marginBottom: '2rem' }} />
+
+                    {inviteUrl && (
+                      <Stack direction={'row'} justify={'center'} spacing={6}>
+                        <Stack spacing={0} align={'center'}>
+                          <Text fontSize="md">专属邀请链接：</Text>
+                          <InputGroup size="md">
+                            <Input
+                              size="md"
+                              value={inviteUrl}
+                              isReadOnly
+                              css={{ width: '20rem' }}
+                            />
+                            <InputRightAddon
+                              onClick={() => {
+                                copyToClipboard(inviteUrl);
+                              }}
+                            >
+                              <CopyIcon _hover={{ cursor: 'pointer' }} />
+                            </InputRightAddon>
+                          </InputGroup>
+                          <Text fontSize="md">专属邀请二维码：</Text>
+                          <Image
+                            src={`data:image/gif;base64,${inviteQrCode}`}
+                            alt="invite qrcode"
+                          />
+                          <Text fontSize="md">邀请规则：</Text>
+                          <ul>
+                            <li>
+                              次数用户每邀请一个新用户，且新用户开通 vip
+                              （包月，或者购买次数包），将增加100次
+                            </li>
+                            <li>
+                              包月用户每邀请一个新用户，且新用户开通 vip
+                              （包月，或者购买次数包），使用有效期将增加5天
+                            </li>
+                          </ul>
+                        </Stack>
+                      </Stack>
+                    )}
                   </Box>
                 </Box>
               </Center>

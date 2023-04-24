@@ -51,10 +51,15 @@ export async function login(
   });
 }
 
-export async function register(account: string, password: string, validateCode: string) {
+export async function register(
+  account: string,
+  password: string,
+  validateCode: string,
+  inviteCode?: string | null,
+) {
   return fetchImpl({
     url: '/api/user/regist',
-    body: { account, password, validateCode },
+    body: { account, password, validateCode, inviteCode },
     method: 'POST',
     withoutCredentials: true,
   });
@@ -163,6 +168,18 @@ export async function payNotify({
 }) {
   return fetchImpl({
     url: `/api/user/pay/notify?out_trade_no=${out_trade_no}&trade_no=${trade_no}&plan_id=${plan_id}&account=${account}`,
+    method: 'GET',
+  });
+}
+
+export async function getInviteUrl(account: string): Promise<
+  BaseResponse<{
+    inviteUrl: string;
+    qrCode: string;
+  }>
+> {
+  return fetchImpl({
+    url: `/api/user/${account}/invite/url`,
     method: 'GET',
   });
 }
