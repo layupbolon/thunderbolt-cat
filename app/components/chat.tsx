@@ -21,7 +21,6 @@ import { useDebounce, useDebouncedCallback } from 'use-debounce';
 import { useToast } from '@chakra-ui/react';
 
 import { Prompt, usePromptStore } from '../store/prompt';
-import Locale from '../locales';
 
 import { IconButton } from './button';
 import styles from './home.module.scss';
@@ -69,14 +68,14 @@ function exportMessages(messages: Message[], topic: string) {
     messages
       .map((m) => {
         return m.role === 'user'
-          ? `## ${Locale.Export.MessageFromYou}:\n${m.content}`
-          : `## ${Locale.Export.MessageFromChatGPT}:\n${m.content.trim()}`;
+          ? `## 来自你的消息:\n${m.content}`
+          : `## 来自 ChatGPT 的消息:\n${m.content.trim()}`;
       })
       .join('\n\n');
   const filename = `${topic}.md`;
 
   showModal({
-    title: Locale.Export.Title,
+    title: '导出聊天记录为 Markdown',
     children: (
       <div className="markdown-body">
         <pre className={styles['export-content']}>{mdText}</pre>
@@ -87,14 +86,14 @@ function exportMessages(messages: Message[], topic: string) {
         key="copy"
         icon={<CopyIcon />}
         bordered
-        text={Locale.Export.Copy}
+        text="全部复制"
         onClick={() => copyToClipboard(mdText)}
       />,
       <IconButton
         key="download"
         icon={<DownloadIcon />}
         bordered
-        text={Locale.Export.Download}
+        text="下载文件"
         onClick={() => downloadAs(mdText, filename)}
       />,
     ],
@@ -138,30 +137,31 @@ function PromptToast(props: {
         >
           <BrainIcon />
           <span className={chatStyle['prompt-toast-content']}>
-            {Locale.Context.Toast(context.length)}
+            {`已设置 ${context.length} 条前置上下文`}
           </span>
         </div>
       )}
       {props.showModal && (
         <div className="modal-mask">
           <Modal
-            title={Locale.Context.Edit}
+            title="前置上下文和历史记忆"
             onClose={() => props.setShowModal(false)}
             actions={[
               <IconButton
                 key="reset"
                 icon={<CopyIcon />}
                 bordered
-                text={Locale.Memory.Reset}
+                text="重置对话"
                 onClick={() =>
-                  confirm(Locale.Memory.ResetConfirm) && chatStore.resetSession()
+                  confirm('重置后将清空当前对话记录以及历史记忆，确认重置？') &&
+                  chatStore.resetSession()
                 }
               />,
               <IconButton
                 key="copy"
                 icon={<CopyIcon />}
                 bordered
-                text={Locale.Memory.Copy}
+                text={'复制记忆'}
                 onClick={() => copyToClipboard(session.memoryPrompt)}
               />,
             ]}
@@ -210,7 +210,7 @@ function PromptToast(props: {
                 <div className={chatStyle['context-prompt-row']}>
                   <IconButton
                     icon={<AddIcon />}
-                    text={Locale.Context.Add}
+                    text={'新增一条'}
                     bordered
                     className={chatStyle['context-prompt-button']}
                     onClick={() =>
@@ -226,12 +226,11 @@ function PromptToast(props: {
               <div className={chatStyle['memory-prompt']}>
                 <div className={chatStyle['memory-prompt-title']}>
                   <span>
-                    {Locale.Memory.Title} ({session.lastSummarizeIndex} of{' '}
-                    {session.messages.length})
+                    历史记忆 ({session.lastSummarizeIndex} of {session.messages.length})
                   </span>
 
                   <label className={chatStyle['memory-prompt-action']}>
-                    {Locale.Memory.Send}
+                    发送记忆
                     <input
                       type="checkbox"
                       checked={session.sendMemory}
@@ -244,7 +243,7 @@ function PromptToast(props: {
                   </label>
                 </div>
                 <div className={chatStyle['memory-prompt-content']}>
-                  {session.memoryPrompt || Locale.Memory.EmptyContent}
+                  {session.memoryPrompt || '尚未记忆'}
                 </div>
               </div>
             </>
@@ -521,7 +520,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
           <div
             className={`${styles['window-header-main-title']} ${styles['chat-body-title']}`}
             onClickCapture={() => {
-              const newTopic = prompt(Locale.Chat.Rename, session.topic);
+              const newTopic = prompt('重命名对话', session.topic);
               if (newTopic && newTopic !== session.topic) {
                 chatStore.updateCurrentSession((session) => (session.topic = newTopic!));
               }
@@ -530,7 +529,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             {session.topic}
           </div>
           <div className={styles['window-header-sub-title']}>
-            {Locale.Chat.SubTitle(session.messages.length)}
+            {`与 ChatGPT 的 ${session.messages.length} 条对话`}
           </div>
         </div>
         <div className={styles['window-actions']}>
@@ -538,7 +537,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             <IconButton
               icon={<ReturnIcon />}
               bordered
-              title={Locale.Chat.Actions.ChatList}
+              title={'查看消息列表'}
               onClick={props?.showSideBar}
             />
           </div>
@@ -546,7 +545,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             <IconButton
               icon={<BrainIcon />}
               bordered
-              title={Locale.Chat.Actions.CompressedHistory}
+              title={'查看压缩后的历史 Prompt'}
               onClick={() => {
                 setShowPromptModal(true);
               }}
@@ -556,7 +555,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             <IconButton
               icon={<ExportIcon />}
               bordered
-              title={Locale.Chat.Actions.Export}
+              title={'导出聊天记录'}
               onClick={() => {
                 exportMessages(
                   session.messages.filter((msg) => !msg.isError),
@@ -597,9 +596,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                   <Avatar role={message.role} />
                 </div>
                 {(message.preview || message.streaming) && (
-                  <div className={styles['chat-message-status']}>
-                    {Locale.Chat.Typing}
-                  </div>
+                  <div className={styles['chat-message-status']}>正在输入…</div>
                 )}
                 <div className={styles['chat-message-item']}>
                   {!isUser && !(message.preview || message.content.length === 0) && (
@@ -609,14 +606,14 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                           className={styles['chat-message-top-action']}
                           onClick={() => onUserStop(message.id ?? i)}
                         >
-                          {Locale.Chat.Actions.Stop}
+                          停止
                         </div>
                       ) : (
                         <div
                           className={styles['chat-message-top-action']}
                           onClick={() => onResend(i)}
                         >
-                          {Locale.Chat.Actions.Retry}
+                          重试
                         </div>
                       )}
 
@@ -624,7 +621,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                         className={styles['chat-message-top-action']}
                         onClick={() => copyToClipboard(message.content)}
                       >
-                        {Locale.Chat.Actions.Copy}
+                        复制
                       </div>
                     </div>
                   )}
@@ -663,7 +660,13 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
           <textarea
             ref={inputRef}
             className={styles['chat-input']}
-            placeholder={Locale.Chat.Input(submitKey)}
+            placeholder={(() => {
+              var inputHints = `${submitKey} 发送`;
+              if (submitKey === String(SubmitKey.Enter)) {
+                inputHints += '，Shift + Enter 换行';
+              }
+              return inputHints + '，/ 触发补全';
+            })()}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
@@ -677,7 +680,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
           />
           <IconButton
             icon={<SendWhiteIcon />}
-            text={Locale.Chat.Send}
+            text={'发送'}
             className={styles['chat-input-send']}
             noDark
             onClick={onUserSubmit}

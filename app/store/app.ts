@@ -6,7 +6,6 @@ import { CreateToastFnReturn, useToast } from '@chakra-ui/react';
 import { ControllerPool, requestChatStream, requestWithPrompt } from '../requests';
 import { isMobileScreen, trimTopic } from '../utils';
 
-import Locale from '../locales';
 import { showToast } from '../components/ui-lib';
 
 export type Message = ChatCompletionResponseMessage & {
@@ -163,10 +162,10 @@ export interface ChatSession {
   promptId?: string;
 }
 
-const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
+const DEFAULT_TOPIC = '新的聊天';
 export const BOT_HELLO: Message = createMessage({
   role: 'assistant',
-  content: Locale.Store.BotHello,
+  content: '有什么可以帮你的吗',
 });
 
 function createEmptySession(selectedPrompt?: {
@@ -327,11 +326,11 @@ export const useChatStore = create<ChatStore>()(
         const deletedSession = get().currentSession();
         const index = get().currentSessionIndex;
         const isLastSession = get().sessions.length === 1;
-        if (!isMobileScreen() || confirm(Locale.Home.DeleteChat)) {
+        if (!isMobileScreen() || confirm('确认删除选中的对话？')) {
           get().removeSession(index);
 
-          showToast(Locale.Home.DeleteToast, {
-            text: Locale.Home.Revert,
+          showToast('已删除会话', {
+            text: '撤销',
             onClick() {
               set((state) => ({
                 sessions: state.sessions
@@ -407,7 +406,7 @@ export const useChatStore = create<ChatStore>()(
           onError(error, statusCode) {
             if (statusCode === 401 || statusCode === 403) {
               window.location.href = '/login';
-              botMessage.content = Locale.Error.Unauthorized;
+              botMessage.content = '现在是未授权状态，请先登录。';
             } else if (statusCode === 402) {
               botMessage.content = '会员计划已用完！请升级会员计划！';
               toast({
@@ -417,7 +416,7 @@ export const useChatStore = create<ChatStore>()(
                 isClosable: true,
               });
             } else {
-              botMessage.content += '\n\n' + Locale.Store.Error;
+              botMessage.content += '\n\n' + '出错了，稍后重试吧';
             }
             botMessage.streaming = false;
             userMessage.isError = true;
@@ -443,7 +442,7 @@ export const useChatStore = create<ChatStore>()(
 
         return {
           role: 'system',
-          content: Locale.Store.Prompt.History(session.memoryPrompt),
+          content: '这是 ai 和用户的历史聊天总结作为前情提要：' + session.memoryPrompt,
           date: '',
         } as Message;
       },
@@ -535,7 +534,8 @@ export const useChatStore = create<ChatStore>()(
           requestChatStream(
             toBeSummarizedMsgs.concat({
               role: 'system',
-              content: Locale.Store.Prompt.Summarize,
+              content:
+                '简要总结一下你和用户的对话，用作后续的上下文提示 prompt，控制在 200 字以内',
               date: '',
             }),
             {
@@ -573,7 +573,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       clearAllData() {
-        if (confirm(Locale.Store.ConfirmClearAll)) {
+        if (confirm('确认清除所有聊天、设置数据？')) {
           localStorage.clear();
           location.reload();
         }

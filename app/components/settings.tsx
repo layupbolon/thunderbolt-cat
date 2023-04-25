@@ -25,7 +25,7 @@ import {
 } from '../store';
 import { Avatar } from './chat';
 
-import Locale, { AllLangs, changeLang, getLang } from '../locales';
+import { AllLangs, changeLang, getLang } from '../locales';
 import { getCurrentVersion, getEmojiUrl } from '../utils';
 import Link from 'next/link';
 import { UPDATE_URL } from '../constant';
@@ -132,42 +132,34 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
     <ErrorBoundary>
       <div className={styles['window-header']}>
         <div className={styles['window-header-title']}>
-          <div className={styles['window-header-main-title']}>
-            {Locale.Settings.Title}
-          </div>
-          <div className={styles['window-header-sub-title']}>
-            {Locale.Settings.SubTitle}
-          </div>
+          <div className={styles['window-header-main-title']}>设置</div>
+          <div className={styles['window-header-sub-title']}>设置选项</div>
         </div>
         <div className={styles['window-actions']}>
           <div className={styles['window-action-button']}>
             <IconButton
               icon={<ClearIcon />}
               onClick={() => {
-                const confirmed = window.confirm(
-                  `${Locale.Settings.Actions.ConfirmClearAll.Confirm}`,
-                );
+                const confirmed = window.confirm('是否要重置所有配置？');
                 if (confirmed) {
                   clearSessions();
                 }
               }}
               bordered
-              title={Locale.Settings.Actions.ClearAll}
+              title={'清除所有数据'}
             />
           </div>
           <div className={styles['window-action-button']}>
             <IconButton
               icon={<ResetIcon />}
               onClick={() => {
-                const confirmed = window.confirm(
-                  `${Locale.Settings.Actions.ConfirmResetAll.Confirm}`,
-                );
+                const confirmed = window.confirm('是否要重置所有配置？');
                 if (confirmed) {
                   resetConfig();
                 }
               }}
               bordered
-              title={Locale.Settings.Actions.ResetAll}
+              title={'重置所有选项'}
             />
           </div>
           <div className={styles['window-action-button']}>
@@ -175,17 +167,17 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
               icon={<CloseIcon />}
               onClick={props.closeSettings}
               bordered
-              title={Locale.Settings.Actions.Close}
+              title={'关闭'}
             />
           </div>
         </div>
       </div>
       <div className={styles['settings']}>
         <List>
-          <SettingItem title={Locale.Settings.Account}>
+          <SettingItem title={'账号'}>
             <span style={{ fontSize: 14 }}>{props.user?.account ?? ''}</span>
           </SettingItem>
-          <SettingItem title={Locale.Settings.Avatar}>
+          <SettingItem title={'头像'}>
             <Popover
               onClose={() => setShowEmojiPicker(false)}
               content={
@@ -207,7 +199,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             </Popover>
           </SettingItem>
 
-          <SettingItem title={Locale.Settings.SendKey}>
+          <SettingItem title={'发送键'}>
             <select
               value={config.submitKey}
               onChange={(e) => {
@@ -225,7 +217,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
           </SettingItem>
 
           <ListItem>
-            <div className={styles['settings-title']}>{Locale.Settings.Theme}</div>
+            <div className={styles['settings-title']}>{'主题'}</div>
             <select
               value={config.theme}
               onChange={(e) => {
@@ -240,25 +232,20 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             </select>
           </ListItem>
 
-          <SettingItem title={Locale.Settings.Lang.Name}>
+          <SettingItem title={'Language'}>
             <select
               value={getLang()}
               onChange={(e) => {
                 changeLang(e.target.value as any);
               }}
             >
-              {AllLangs.map((lang) => (
-                <option value={lang} key={lang}>
-                  {Locale.Settings.Lang.Options[lang]}
-                </option>
-              ))}
+              <option value={'cn'} key={'cn'}>
+                简体中文
+              </option>
             </select>
           </SettingItem>
 
-          <SettingItem
-            title={Locale.Settings.FontSize.Title}
-            subTitle={Locale.Settings.FontSize.SubTitle}
-          >
+          <SettingItem title={'字体大小'} subTitle={'聊天内容的字体大小'}>
             <InputRange
               title={`${config.fontSize ?? 14}px`}
               value={config.fontSize}
@@ -273,7 +260,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             ></InputRange>
           </SettingItem>
 
-          <SettingItem title={Locale.Settings.TightBorder}>
+          <SettingItem title={'紧凑边框'}>
             <input
               type="checkbox"
               checked={config.tightBorder}
@@ -283,7 +270,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             ></input>
           </SettingItem>
 
-          <SettingItem title={Locale.Settings.SendPreviewBubble}>
+          <SettingItem title={'发送预览气泡'}>
             <input
               type="checkbox"
               checked={config.sendPreviewBubble}
@@ -297,8 +284,8 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
         </List>
         <List>
           <SettingItem
-            title={Locale.Settings.Prompt.Disable.Title}
-            subTitle={Locale.Settings.Prompt.Disable.SubTitle}
+            title={'禁用提示词自动补全'}
+            subTitle={'在输入框开头输入 / 即可触发自动补全'}
           >
             <input
               type="checkbox"
@@ -312,26 +299,23 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
           </SettingItem>
 
           <SettingItem
-            title={Locale.Settings.Prompt.List}
-            subTitle={Locale.Settings.Prompt.ListCount(builtinCount, customCount)}
+            title={'自定义提示词列表'}
+            subTitle={`内置 ${builtinCount} 条，用户定义 ${customCount} 条`}
           >
             <IconButton
               icon={<EditIcon />}
-              text={Locale.Settings.Prompt.Edit}
-              onClick={() => showToast(Locale.WIP)}
+              text={'编辑'}
+              onClick={() => showToast('该功能仍在开发中……')}
             />
           </SettingItem>
         </List>
         <List>
           {enabledAccessControl ? (
-            <SettingItem
-              title={Locale.Settings.AccessCode.Title}
-              subTitle={Locale.Settings.AccessCode.SubTitle}
-            >
+            <SettingItem title={'访问密码'} subTitle={'现在是未授权访问状态'}>
               <PasswordInput
                 value={accessStore.accessCode}
                 type="text"
-                placeholder={Locale.Settings.AccessCode.Placeholder}
+                placeholder={'请输入访问密码'}
                 onChange={(e) => {
                   accessStore.updateCode(e.currentTarget.value);
                 }}
@@ -341,14 +325,11 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             <></>
           )}
 
-          <SettingItem
-            title={Locale.Settings.Token.Title}
-            subTitle={Locale.Settings.Token.SubTitle}
-          >
+          <SettingItem title={'API Key'} subTitle={'使用自己的 Key 可绕过密码访问限制'}>
             <PasswordInput
               value={accessStore.token}
               type="text"
-              placeholder={Locale.Settings.Token.Placeholder}
+              placeholder={'OpenAI API Key'}
               onChange={(e) => {
                 accessStore.updateToken(e.currentTarget.value);
               }}
@@ -379,10 +360,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             )}
           </SettingItem> */}
 
-          <SettingItem
-            title={Locale.Settings.HistoryCount.Title}
-            subTitle={Locale.Settings.HistoryCount.SubTitle}
-          >
+          <SettingItem title={'附带历史消息数'} subTitle={'每次请求携带的历史消息数'}>
             <InputRange
               title={config.historyMessageCount.toString()}
               value={config.historyMessageCount}
@@ -398,8 +376,8 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
           </SettingItem>
 
           <SettingItem
-            title={Locale.Settings.CompressThreshold.Title}
-            subTitle={Locale.Settings.CompressThreshold.SubTitle}
+            title={'历史消息长度压缩阈值'}
+            subTitle={'当未压缩的历史消息超过该值时，将进行压缩'}
           >
             <input
               type="number"
@@ -418,7 +396,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
         </List>
 
         <List>
-          <SettingItem title={Locale.Settings.Model}>
+          <SettingItem title={'模型 (model)'}>
             <select
               value={config.modelConfig.model}
               onChange={(e) => {
@@ -438,8 +416,8 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             </select>
           </SettingItem>
           <SettingItem
-            title={Locale.Settings.Temperature.Title}
-            subTitle={Locale.Settings.Temperature.SubTitle}
+            title={'随机性 (temperature)'}
+            subTitle={'值越大，回复越随机，大于 1 的值可能会导致乱码'}
           >
             <InputRange
               value={config.modelConfig.temperature?.toFixed(1)}
@@ -457,8 +435,8 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             ></InputRange>
           </SettingItem>
           <SettingItem
-            title={Locale.Settings.MaxTokens.Title}
-            subTitle={Locale.Settings.MaxTokens.SubTitle}
+            title={'单次回复限制 (max_tokens)'}
+            subTitle={'单次交互所用的最大 Token 数'}
           >
             <input
               type="number"
@@ -476,8 +454,8 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
             ></input>
           </SettingItem>
           <SettingItem
-            title={Locale.Settings.PresencePenlty.Title}
-            subTitle={Locale.Settings.PresencePenlty.SubTitle}
+            title={'话题新鲜度 (presence_penalty)'}
+            subTitle={'值越大，越有可能扩展到新话题'}
           >
             <InputRange
               value={config.modelConfig.presence_penalty?.toFixed(1)}

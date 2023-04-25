@@ -8,8 +8,6 @@ import {
 } from '@hello-pangea/dnd';
 
 import { useChatStore } from '../store';
-
-import Locale from '../locales';
 import { isMobileScreen } from '../utils';
 
 export function ChatItem(props: {
@@ -36,9 +34,7 @@ export function ChatItem(props: {
         >
           <div className={styles['chat-item-title']}>{props.title}</div>
           <div className={styles['chat-item-info']}>
-            <div className={styles['chat-item-count']}>
-              {Locale.ChatItem.ChatItemCount(props.count)}
-            </div>
+            <div className={styles['chat-item-count']}>{`${props.count} 条对话`}</div>
             <div className={styles['chat-item-date']}>{props.time}</div>
           </div>
           <div className={styles['chat-item-delete']} onClick={props.onDelete}>

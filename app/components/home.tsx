@@ -12,7 +12,6 @@ import AddIcon from '../icons/add.svg';
 import BotIcon from '../icons/bot.svg';
 import CloseIcon from '../icons/close.svg';
 import LoadingIcon from '../icons/three-dots.svg';
-import Locale from '../locales';
 import { useChatStore } from '../store';
 import { Header } from './header/Header';
 
@@ -119,7 +118,7 @@ function _Home() {
             <div className={styles['sidebar-action']}>
               <IconButton
                 icon={<AddIcon />}
-                text={Locale.Home.NewChat}
+                text={'新的聊天'}
                 onClick={() => {
                   createNewSession();
                   setShowSideBar(false);

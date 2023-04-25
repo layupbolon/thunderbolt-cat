@@ -1,6 +1,5 @@
 import { EmojiStyle } from 'emoji-picker-react';
 import { showToast } from './components/ui-lib';
-import Locale from './locales';
 
 export function trimTopic(topic: string) {
   return topic.replace(/[，。！？”“"、,.!?]*$/, '');
@@ -9,7 +8,7 @@ export function trimTopic(topic: string) {
 export async function copyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text);
-    showToast(Locale.Copy.Success);
+    showToast('已写入剪切板');
   } catch (error) {
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -18,9 +17,9 @@ export async function copyToClipboard(text: string) {
     textArea.select();
     try {
       document.execCommand('copy');
-      showToast(Locale.Copy.Success);
+      showToast('已写入剪切板');
     } catch (error) {
-      showToast(Locale.Copy.Failed);
+      showToast('复制失败，请赋予剪切板权限');
     }
     document.body.removeChild(textArea);
   }
