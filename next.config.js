@@ -20,18 +20,17 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/user/pay/notify',
-        destination: `${url}/v1/user/pay/notify`,
-      },
-      {
-        source: '/api/user/:account*/invite/url',
-        destination: `${url}/v1/user/:account*/invite/url`,
-      },
-      {
         source: '/api/user/:path*',
         destination: `${url}/v1/user/:path*`,
       },
-      
+      {
+        source: '/api/pay/notify',
+        destination: `${url}/v1/user/pay/notify`,
+      },
+      {
+        source: '/api/invite/url/:account',
+        destination: `${url}/v1/user/:account/invite/url`,
+      },
       {
         source: '/api/authenticate',
         destination: `${url}/authenticate`,

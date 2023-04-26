@@ -30,7 +30,7 @@ import { Input, Modal, showModal } from './ui-lib';
 
 import DeleteIcon from '../icons/delete.svg';
 import AddIcon from '../icons/add.svg';
-import BotIcon from '../icons/bot.svg';
+import LogoLoading from '../icons/logo_loading.svg';
 import BrainIcon from '../icons/brain.svg';
 import CopyIcon from '../icons/copy.svg';
 import DownloadIcon from '../icons/download.svg';
@@ -39,6 +39,7 @@ import ReturnIcon from '../icons/return.svg';
 import SendWhiteIcon from '../icons/send-white.svg';
 import LoadingIcon from '../icons/three-dots.svg';
 import { ControllerPool } from '../requests';
+import { SLOT_FIELDS } from '../constant';
 
 const Markdown = dynamic(async () => memo((await import('./markdown')).Markdown), {
   loading: () => <LoadingIcon />,
@@ -52,7 +53,7 @@ export function Avatar(props: { role: Message['role'] }) {
   const config = useChatStore((state) => state.config);
 
   if (props.role !== 'user') {
-    return <BotIcon className={styles['user-avtar']} />;
+    return <LogoLoading className={styles['user-avtar']} />;
   }
 
   return (
@@ -342,6 +343,14 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
 
   const toast = useToast();
 
+  useEffect(() => {
+    if (session.promptId && session.context.length === 0) {
+      // TODO
+      // chatStore.onUserInput(userInput, toast);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onChatBodyScroll = (e: HTMLElement) => {
     const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 20;
     setHitBottom(isTouchBottom);
@@ -470,8 +479,15 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
 
   const context: RenderMessage[] = session.context.slice();
 
-  if (context.length === 0 && session.messages.at(0)?.content !== BOT_HELLO.content) {
-    context.push(BOT_HELLO);
+  if (context.length === 0 && session.slotFields) {
+    context.push(
+      createMessage({
+        content: Object.keys(session.slotFields).reduce<string>((acc, key) => {
+          acc += `${key}: ${session.slotFields![key]} \n`;
+          return acc;
+        }, ''),
+      }),
+    );
   }
 
   // preview messages

@@ -9,7 +9,7 @@ const makeRequestParam = (
     filterBot?: boolean;
     stream?: boolean;
   },
-): ChatRequest => {
+): ChatRequest & { promptId?: string; promptParams?: Record<string, string> } => {
   let sendMessages = messages.map((v) => ({
     role: v.role,
     content: v.content,
@@ -81,12 +81,19 @@ export async function requestChatStream(
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error, statusCode?: number) => void;
     onController?: (controller: AbortController) => void;
+    promptId?: string;
+    promptParams?: Record<string, string>;
   },
 ) {
   const req = makeRequestParam(messages, {
     stream: true,
     filterBot: options?.filterBot,
   });
+
+  if (req.messages.length < 4) {
+    req.promptId = options?.promptId;
+    req.promptParams = options?.promptParams;
+  }
 
   console.log('[Request] ', req);
 

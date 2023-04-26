@@ -3,9 +3,24 @@ import styles from './promptsList.module.scss';
 import { PromptTag } from './PromptTag';
 import { getPromptCategoryList, getPromptList } from '../../aigc-tools-requests';
 import { Prompt, PromptCategory } from '@/app/aigc-typings';
-import { Button } from '@chakra-ui/react';
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
 import { useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
+import { SLOT_FIELDS } from '@/app/constant';
 
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
@@ -18,8 +33,16 @@ export const Prompts: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
   const [promptCategories, setPromptCategories] = useState<PromptCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [createNewSession] = useChatStore((state) => [state.newSession]);
+  const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
+  const [slotFields, setSlotFields] = useState<Record<string, string>>({});
+  const [createNewSession, onUserInput, updateCurrentSession] = useChatStore((state) => [
+    state.newSession,
+    state.onUserInput,
+    state.updateCurrentSession,
+  ]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     getPromptCategoryList()
@@ -82,11 +105,35 @@ export const Prompts: React.FC = () => {
                 <Button
                   size="xs"
                   onClick={() => {
-                    createNewSession({
-                      promptId: prompt.id + '',
-                      promptRule: prompt.act,
-                    });
-                    router.push('/chat');
+                    setCurrentPrompt(prompt);
+
+                    const promptContent = prompt.prompt;
+                    const slots = promptContent.match(/\[(.*?)\]/g) as string[];
+                    if (slots && Array.isArray(slots) && slots.length) {
+                      const slotFields = slots.reduce<Record<string, string>>(
+                        (res, cur) => {
+                          const slotField = cur.substring(1, cur.length - 1).trim();
+                          res[slotField] = '';
+                          return res;
+                        },
+                        {},
+                      );
+                      setSlotFields(slotFields);
+                      onOpen();
+                    } else {
+                      setSlotFields({});
+
+                      window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
+
+                      createNewSession({
+                        promptId: prompt.id + '',
+                        promptRule: prompt.act,
+                      });
+                      updateCurrentSession((session) => {
+                        session.slotFields = {};
+                      });
+                      router.push('/chat');
+                    }
                   }}
                 >
                   使用
@@ -97,6 +144,55 @@ export const Prompts: React.FC = () => {
           </li>
         ))}
       </ul>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{currentPrompt?.act}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            {Object.keys(slotFields).map((key) => {
+              return (
+                <FormControl key={key}>
+                  <FormLabel>{key}</FormLabel>
+                  <Input
+                    value={slotFields[key]}
+                    onChange={(e) =>
+                      setSlotFields({
+                        ...slotFields,
+                        [key]: e.target.value,
+                      })
+                    }
+                  />
+                </FormControl>
+              );
+            })}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={() => {
+                createNewSession({
+                  promptId: currentPrompt!.id + '',
+                  promptRule: currentPrompt!.act,
+                });
+                updateCurrentSession((session) => {
+                  session.slotFields = slotFields;
+                });
+                router.push('/chat');
+                onClose();
+              }}
+              isDisabled={Object.values(slotFields).some(
+                (value) => !value || !value.length,
+              )}
+            >
+              进入场景
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

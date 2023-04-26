@@ -9,7 +9,7 @@ import { Chat } from './chat';
 import { ErrorBoundary } from './error';
 import styles from './home.module.scss';
 import AddIcon from '../icons/add.svg';
-import BotIcon from '../icons/bot.svg';
+import LogoLoading from '../icons/logo_loading.svg';
 import CloseIcon from '../icons/close.svg';
 import LoadingIcon from '../icons/three-dots.svg';
 import { useChatStore } from '../store';
@@ -18,7 +18,7 @@ import { Header } from './header/Header';
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={styles['loading-content']}>
-      {!props.noLogo && <BotIcon />}
+      {!props.noLogo && <LogoLoading />}
       <LoadingIcon />
     </div>
   );

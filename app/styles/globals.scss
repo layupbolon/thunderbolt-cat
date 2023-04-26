@@ -99,6 +99,13 @@ body {
   font-family: 'Noto Sans SC', 'SF Pro SC', 'SF Pro Text', 'SF Pro Icons', 'PingFang SC',
     'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 
+  background: url('/landing-bg.jpg') no-repeat 0 0 !important;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
   @media only screen and (max-width: 600px) {
     background-color: var(--second);
   }

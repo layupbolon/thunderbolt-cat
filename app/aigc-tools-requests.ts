@@ -142,6 +142,7 @@ export async function auth({
     url: '/api/authenticate',
     method: 'POST',
     body: { account, password },
+    withoutCredentials: true,
   });
 }
 
@@ -167,7 +168,7 @@ export async function payNotify({
   account: string;
 }) {
   return fetchImpl({
-    url: `/api/user/pay/notify?out_trade_no=${out_trade_no}&trade_no=${trade_no}&plan_id=${plan_id}&account=${account}`,
+    url: `/api/pay/notify?out_trade_no=${out_trade_no}&trade_no=${trade_no}&plan_id=${plan_id}&account=${account}`,
     method: 'GET',
   });
 }
@@ -179,7 +180,7 @@ export async function getInviteUrl(account: string): Promise<
   }>
 > {
   return fetchImpl({
-    url: `/api/user/${account}/invite/url`,
+    url: `/api/invite/url/${account}`,
     method: 'GET',
   });
 }

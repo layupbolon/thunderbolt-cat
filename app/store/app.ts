@@ -160,6 +160,7 @@ export interface ChatSession {
   lastUpdate: string;
   lastSummarizeIndex: number;
   promptId?: string;
+  slotFields?: Record<string, string>;
 }
 
 const DEFAULT_TOPIC = '新的聊天';
@@ -390,7 +391,12 @@ export const useChatStore = create<ChatStore>()(
 
         // make request
         console.log('[User Input] ', sendMessages);
+
+        const session = get().currentSession();
+
         requestChatStream(sendMessages, {
+          promptId: session.promptId,
+          promptParams: session.slotFields,
           onMessage(content, done) {
             // stream response
             if (done) {
@@ -539,6 +545,8 @@ export const useChatStore = create<ChatStore>()(
               date: '',
             }),
             {
+              promptId: session.promptId,
+              promptParams: session.slotFields,
               filterBot: false,
               onMessage(message, done) {
                 session.memoryPrompt = message;

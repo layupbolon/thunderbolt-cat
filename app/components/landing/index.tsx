@@ -3,41 +3,51 @@
 import { Button } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import styles from './landing.module.scss';
-import { Header } from '../header/Header';
-import { Prompts } from '../prompts/PromptsList';
 import { LOGO_SLOGAN } from '@/app/constant';
+import Logo from '../../icons/logo.svg';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
 
 export const Landing = () => {
   const router = useRouter();
 
   return (
     <div className={styles.container}>
-      <div className={styles.bg}></div>
-      <Header />
-
-      <h1 className={styles.title}>{LOGO_SLOGAN}</h1>
-      <h2 className={styles.subTitle}>ChatGPT 国内入口，无需魔法直接使用</h2>
-      <div className={styles.btns}>
-        <Button
-          style={{ width: '150px', height: '50px', fontSize: '18px' }}
-          size={'lg'}
-          bg={'#7928CA'}
-          color={'white'}
-          bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
-          _hover={{
-            bg: 'linear(to-l, #2d9164, #131f62)',
-          }}
-          onClick={() => {
-            router.push('/chat');
-          }}
-        >
-          立即使用
-        </Button>
+      <div className={styles.content}>
+        <h1 className={styles.title}>
+          <Logo />
+          {LOGO_SLOGAN}
+        </h1>
+        <h2 className={styles.subTitle}>
+          新时代的智能小助手，从此生活、工作变得更加轻松愉快！
+        </h2>
+        <div className={styles.btns}>
+          <Button
+            size={'lg'}
+            rightIcon={<ArrowForwardIcon />}
+            bg={'#7928CA'}
+            color={'white'}
+            bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
+            _hover={{
+              bg: 'linear(to-l, #2d9164, #131f62)',
+            }}
+            onClick={() => {
+              router.push('/chat');
+            }}
+          >
+            立即使用
+          </Button>
+          <Button
+            colorScheme="gray"
+            size={'lg'}
+            style={{ marginLeft: '1rem' }}
+            onClick={() => {
+              router.push('/prompt');
+            }}
+          >
+            快捷指令
+          </Button>
+        </div>
       </div>
-
-      <h1 className={styles.title}>咒语大全</h1>
-      <h2 className={styles.subTitle}>帮助你更便捷地使用 ChatGPT</h2>
-      <Prompts />
     </div>
   );
 };

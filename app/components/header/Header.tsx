@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import styles from './header.module.scss';
 import ChatGPTIcon from '../../icons/chatgpt.svg';
 import LeftIcon from '../../icons/left.svg';
+import Logo from '../../icons/logo_header.svg';
 import { LOGO_SLOGAN } from '@/app/constant';
 import {
   Avatar,
@@ -98,7 +99,7 @@ export const Header = (props: Props) => {
           </span>
         )}
 
-        <ChatGPTIcon />
+        <Logo />
         <h1>{LOGO_SLOGAN}</h1>
       </span>
 
