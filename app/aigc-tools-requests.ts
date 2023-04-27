@@ -143,7 +143,7 @@ export async function auth({
   password: string;
 }): Promise<{ jwt: string }> {
   return fetchImpl({
-    url: '/api/auth',
+    url: '/api/authenticate',
     method: 'POST',
     body: { account, password },
     withoutCredentials: true,
