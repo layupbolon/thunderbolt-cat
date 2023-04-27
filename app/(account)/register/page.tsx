@@ -68,18 +68,22 @@ export default function SignupCard() {
 
   const handleRequestValidateCode = () => {
     requestValidateCode(account!)
-      .then(() => {
-        toast({
-          title: '验证码已发送',
-          status: 'success',
-          duration: 1000,
-          isClosable: true,
-        });
-        startCountdown();
+      .then((res) => {
+        if (res && +res.code !== 0) {
+          toast({
+            title: '验证码已发送',
+            status: 'success',
+            duration: 1000,
+            isClosable: true,
+          });
+          startCountdown();
+        } else {
+          return Promise.reject(res.message);
+        }
       })
       .catch((err) => {
         toast({
-          title: err.message,
+          title: err,
           status: 'error',
           duration: 1000,
           isClosable: true,

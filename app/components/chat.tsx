@@ -344,7 +344,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
   const toast = useToast();
 
   useEffect(() => {
-    if (session.promptId && session.context.length === 0) {
+    if (session.promptId && session.messages.length === 0) {
       chatStore.onUserInput('', toast);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

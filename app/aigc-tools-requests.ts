@@ -71,7 +71,7 @@ export async function register(
   });
 }
 
-export async function requestValidateCode(account: string) {
+export async function requestValidateCode(account: string): Promise<BaseResponse<any>> {
   return await fetchImpl({
     url: '/api/user/validate',
     body: { account },
