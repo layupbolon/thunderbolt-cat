@@ -598,75 +598,77 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
           setAutoScroll(false);
         }}
       >
-        {messages.map((message, i) => {
-          const isUser = message.role === 'user';
+        {messages
+          .filter((message) => message.content && message.content.length)
+          .map((message, i) => {
+            const isUser = message.role === 'user';
 
-          return (
-            <div
-              key={i}
-              className={isUser ? styles['chat-message-user'] : styles['chat-message']}
-            >
-              <div className={styles['chat-message-container']}>
-                <div className={styles['chat-message-avatar']}>
-                  <Avatar role={message.role} />
-                </div>
-                {(message.preview || message.streaming) && (
-                  <div className={styles['chat-message-status']}>正在输入…</div>
-                )}
-                <div className={styles['chat-message-item']}>
-                  {!isUser && !(message.preview || message.content.length === 0) && (
-                    <div className={styles['chat-message-top-actions']}>
-                      {message.streaming ? (
+            return (
+              <div
+                key={i}
+                className={isUser ? styles['chat-message-user'] : styles['chat-message']}
+              >
+                <div className={styles['chat-message-container']}>
+                  <div className={styles['chat-message-avatar']}>
+                    <Avatar role={message.role} />
+                  </div>
+                  {(message.preview || message.streaming) && (
+                    <div className={styles['chat-message-status']}>正在输入…</div>
+                  )}
+                  <div className={styles['chat-message-item']}>
+                    {!isUser && !(message.preview || message.content.length === 0) && (
+                      <div className={styles['chat-message-top-actions']}>
+                        {message.streaming ? (
+                          <div
+                            className={styles['chat-message-top-action']}
+                            onClick={() => onUserStop(message.id ?? i)}
+                          >
+                            停止
+                          </div>
+                        ) : (
+                          <div
+                            className={styles['chat-message-top-action']}
+                            onClick={() => onResend(i)}
+                          >
+                            重试
+                          </div>
+                        )}
+
                         <div
                           className={styles['chat-message-top-action']}
-                          onClick={() => onUserStop(message.id ?? i)}
+                          onClick={() => copyToClipboard(message.content)}
                         >
-                          停止
+                          复制
                         </div>
-                      ) : (
-                        <div
-                          className={styles['chat-message-top-action']}
-                          onClick={() => onResend(i)}
-                        >
-                          重试
-                        </div>
-                      )}
-
+                      </div>
+                    )}
+                    {(message.preview || message.content.length === 0) && !isUser ? (
+                      <LoadingIcon />
+                    ) : (
                       <div
-                        className={styles['chat-message-top-action']}
-                        onClick={() => copyToClipboard(message.content)}
+                        className="markdown-body"
+                        style={{ fontSize: `${fontSize}px` }}
+                        onContextMenu={(e) => onRightClick(e, message)}
+                        onDoubleClickCapture={() => {
+                          if (!isMobileScreen()) return;
+                          setUserInput(message.content);
+                        }}
                       >
-                        复制
+                        <Markdown content={message.content} />
+                      </div>
+                    )}
+                  </div>
+                  {!isUser && !message.preview && (
+                    <div className={styles['chat-message-actions']}>
+                      <div className={styles['chat-message-action-date']}>
+                        {message.date.toLocaleString()}
                       </div>
                     </div>
                   )}
-                  {(message.preview || message.content.length === 0) && !isUser ? (
-                    <LoadingIcon />
-                  ) : (
-                    <div
-                      className="markdown-body"
-                      style={{ fontSize: `${fontSize}px` }}
-                      onContextMenu={(e) => onRightClick(e, message)}
-                      onDoubleClickCapture={() => {
-                        if (!isMobileScreen()) return;
-                        setUserInput(message.content);
-                      }}
-                    >
-                      <Markdown content={message.content} />
-                    </div>
-                  )}
                 </div>
-                {!isUser && !message.preview && (
-                  <div className={styles['chat-message-actions']}>
-                    <div className={styles['chat-message-action-date']}>
-                      {message.date.toLocaleString()}
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
 
       <div className={styles['chat-input-panel']}>

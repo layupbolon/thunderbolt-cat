@@ -35,7 +35,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { getUserByToken, getInviteUrl } from '../../aigc-tools-requests';
 import { UserInfo } from '@/app/aigc-typings';
-import { CopyIcon } from '@chakra-ui/icons';
+import { ArrowForwardIcon, CopyIcon } from '@chakra-ui/icons';
 import { copyToClipboard } from '@/app/utils';
 
 interface Props {
@@ -46,18 +46,14 @@ export const Header = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<UserInfo>();
   const [loading, setLoading] = useState<boolean>(true);
-  const [inviteUrl, setInviteUrl] = useState<string>();
-  const [inviteQrCode, setInviteQrCode] = useState<string>();
+
   const router = useRouter();
 
   const handleGetUserByToken = useCallback(() => {
     getUserByToken()
       .then((res) => {
         setUser(res.result);
-        getInviteUrl(res.result.account).then((res) => {
-          setInviteUrl(res.result.inviteUrl);
-          setInviteQrCode(res.result.qrCode);
-        });
+
         setLoading(false);
       })
       .catch(() => {
@@ -202,13 +198,8 @@ export const Header = (props: Props) => {
 
                     <Stack direction={'row'} justify={'center'} spacing={6}>
                       {(user?.vipType === 0 || user?.vipType === 1) && (
-                        <Stack spacing={0} align={'center'}>
-                          <Text fontWeight={600}>
-                            {user?.visitCount ?? 0}/{user?.visitLimit ?? 0}
-                          </Text>
-                          <Text fontSize={'sm'} color={'gray.500'}>
-                            次
-                          </Text>
+                        <Stack spacing={0} align={'center'} direction={'row'}>
+                          <Text fontSize={'sm'}>剩余{user?.visitLimit ?? 0}次</Text>
                         </Stack>
                       )}
                       {user?.vipType === 2 &&
@@ -243,51 +234,30 @@ export const Header = (props: Props) => {
                       }}
                       onClick={() => {
                         router.push('/upgrade');
+                        setIsOpen(false);
                       }}
                     >
                       升级会员
                     </Button>
 
-                    <Divider css={{ marginTop: '2rem', marginBottom: '2rem' }} />
-
-                    {inviteUrl && (
-                      <Stack direction={'row'} justify={'center'} spacing={6}>
-                        <Stack spacing={0} align={'center'}>
-                          <Text fontSize="md">专属邀请链接：</Text>
-                          <InputGroup size="md">
-                            <Input
-                              size="md"
-                              value={inviteUrl}
-                              isReadOnly
-                              css={{ width: '20rem' }}
-                            />
-                            <InputRightAddon
-                              onClick={() => {
-                                copyToClipboard(inviteUrl);
-                              }}
-                            >
-                              <CopyIcon _hover={{ cursor: 'pointer' }} />
-                            </InputRightAddon>
-                          </InputGroup>
-                          <Text fontSize="md">专属邀请二维码：</Text>
-                          <Image
-                            src={`data:image/gif;base64,${inviteQrCode}`}
-                            alt="invite qrcode"
-                          />
-                          <Text fontSize="md">邀请规则：</Text>
-                          <ul>
-                            <li>
-                              次数用户每邀请一个新用户，且新用户开通 vip
-                              （包月，或者购买次数包），将增加100次
-                            </li>
-                            <li>
-                              包月用户每邀请一个新用户，且新用户开通 vip
-                              （包月，或者购买次数包），使用有效期将增加5天
-                            </li>
-                          </ul>
-                        </Stack>
-                      </Stack>
-                    )}
+                    <Button
+                      w={'full'}
+                      rightIcon={<ArrowForwardIcon />}
+                      colorScheme="teal"
+                      variant="outline"
+                      rounded={'md'}
+                      mt={5}
+                      _hover={{
+                        transform: 'translateY(-2px)',
+                        boxShadow: 'lg',
+                      }}
+                      onClick={() => {
+                        router.push('/invite');
+                        setIsOpen(false);
+                      }}
+                    >
+                      邀请好友
+                    </Button>
                   </Box>
                 </Box>
               </Center>
