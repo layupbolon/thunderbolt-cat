@@ -111,7 +111,6 @@ export async function requestChatStream(
       },
       body: JSON.stringify(req),
       signal: controller.signal,
-      credentials: 'include',
     });
     clearTimeout(reqTimeoutId);
 
