@@ -1,4 +1,5 @@
 import type { ChatRequest, ChatResponse } from './api/openai/typing';
+import { TOKEN_STORAGE_KEY } from './constant';
 import { Message, ModelConfig, useAccessStore, useChatStore } from './store';
 
 const TIME_OUT_MS = 60000;
@@ -106,7 +107,7 @@ export async function requestChatStream(
       headers: {
         'Content-Type': 'application/json',
         path: 'v1/chat/completions/stream',
-        // ...getHeaders(),
+        token: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
       },
       body: JSON.stringify(req),
       signal: controller.signal,

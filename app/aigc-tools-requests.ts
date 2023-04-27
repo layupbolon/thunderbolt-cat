@@ -6,6 +6,7 @@ import type {
   PromptCategory,
   UserInfo,
 } from './aigc-typings';
+import { TOKEN_STORAGE_KEY } from './constant';
 
 async function fetchImpl({
   body,
@@ -24,9 +25,12 @@ async function fetchImpl({
     method,
     headers: headers ?? {
       'Content-Type': 'application/json',
+      Authorization: withoutCredentials
+        ? ''
+        : window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
     },
     body: body ? JSON.stringify(body) : undefined,
-    credentials: withoutCredentials ? 'omit' : 'include',
+    // credentials: withoutCredentials ? 'omit' : 'include',
   });
 
   const innerResponse = (await res.json()) as any;
@@ -139,7 +143,7 @@ export async function auth({
   password: string;
 }): Promise<{ jwt: string }> {
   return fetchImpl({
-    url: '/api/authenticate',
+    url: '/api/auth',
     method: 'POST',
     body: { account, password },
     withoutCredentials: true,

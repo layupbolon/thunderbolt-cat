@@ -1,10 +1,9 @@
-/** @type {import('next').NextConfig} */
-
 const host = '45.32.94.79';
 // const host = '172.25.9.84'
 const port = '8080';
 const url = `http://${host}:${port}`
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     appDir: true,
@@ -17,7 +16,7 @@ const nextConfig = {
 
     return config;
   },
-  async rewrites() {
+  rewrites() {
     return [
       {
         source: '/api/user/:path*',
