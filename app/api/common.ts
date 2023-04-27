@@ -13,6 +13,7 @@ const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
 export async function requestOpenai(req: NextRequest) {
   const token = req.headers.get('token');
   console.log('token: ', token);
+  console.log('req.body: ', req.body);
   const openaiPath = req.headers.get('path');
 
   console.log('[Proxy] ', openaiPath);
