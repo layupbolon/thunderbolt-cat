@@ -13,10 +13,12 @@ const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
 export async function requestOpenai(req: NextRequest) {
   const token = req.headers.get('token');
   console.log('token: ', token);
-  console.log('req.body: ', req.body);
   const openaiPath = req.headers.get('path');
 
   console.log('[Proxy] ', openaiPath);
+
+  const body = await req.json();
+  console.log('body: ', body);
 
   // return fetch(`${PROTOCOL}://${BASE_URL}/${openaiPath}`, {
   return fetch(`${url}/${openaiPath}`, {
@@ -25,6 +27,6 @@ export async function requestOpenai(req: NextRequest) {
       Authorization: token ?? '',
     },
     method: req.method,
-    body: req.body,
+    body: JSON.stringify(body),
   });
 }

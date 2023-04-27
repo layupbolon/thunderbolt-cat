@@ -35,7 +35,7 @@ export default function SimpleCard() {
             duration: 1000,
             isClosable: true,
           });
-          localStorage.setItem(TOKEN_STORAGE_KEY, res.jwt);
+          window.localStorage.setItem(TOKEN_STORAGE_KEY, res.jwt);
           router.replace('/');
         } else {
           toast({

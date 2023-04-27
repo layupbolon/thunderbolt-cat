@@ -21,14 +21,16 @@ async function fetchImpl({
   headers?: HeadersInit;
   withoutCredentials?: boolean;
 }) {
+  const _headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (!withoutCredentials) {
+    _headers.Authorization = window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '';
+  }
+
   const res = await fetch(url, {
     method,
-    headers: headers ?? {
-      'Content-Type': 'application/json',
-      Authorization: withoutCredentials
-        ? ''
-        : window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
-    },
+    headers: headers ?? _headers,
     body: body ? JSON.stringify(body) : undefined,
     // credentials: withoutCredentials ? 'omit' : 'include',
   });
@@ -122,6 +124,7 @@ export async function getPromptCategoryList(): Promise<BaseResponse<PromptCatego
   return fetchImpl({
     url: '/api/prompt-category-list',
     method: 'GET',
+    withoutCredentials: true,
   });
 }
 
@@ -132,6 +135,7 @@ export async function getPromptList(categoryId: number): Promise<BaseResponse<Pr
     body: {
       categoryId,
     },
+    withoutCredentials: true,
   });
 }
 

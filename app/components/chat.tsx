@@ -412,10 +412,10 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
       setPromptHints([]);
     } else if (!chatStore.config.disablePromptHint && n < SEARCH_TEXT_LIMIT) {
       // check if need to trigger auto completion
-      if (text.startsWith('/')) {
-        let searchText = text.slice(1);
-        onSearch(searchText);
-      }
+      // if (text.startsWith('/')) {
+      //   let searchText = text.slice(1);
+      //   onSearch(searchText);
+      // }
     }
   };
 
@@ -682,7 +682,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
               if (submitKey === String(SubmitKey.Enter)) {
                 inputHints += '，Shift + Enter 换行';
               }
-              return inputHints + '，/ 触发补全';
+              return inputHints;
             })()}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
@@ -690,7 +690,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             onFocus={() => setAutoScroll(true)}
             onBlur={() => {
               setAutoScroll(false);
-              setTimeout(() => setPromptHints([]), 500);
+              // setTimeout(() => setPromptHints([]), 500);
             }}
             autoFocus={!props?.sideBarShowing}
             rows={inputRows}
