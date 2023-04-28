@@ -5,6 +5,7 @@ import { getPromptCategoryList, getPromptList } from '../../aigc-tools-requests'
 import { Prompt, PromptCategory } from '@/app/aigc-typings';
 import {
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Input,
@@ -15,12 +16,14 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import { useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
 import { SLOT_FIELDS } from '@/app/constant';
+import LogoLoading from '../../icons/logo_loading.svg';
 
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
@@ -30,7 +33,7 @@ const generateRandomColor = () => {
 };
 
 export const Prompts: React.FC = () => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
   const [promptCategories, setPromptCategories] = useState<PromptCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
@@ -41,6 +44,7 @@ export const Prompts: React.FC = () => {
     state.updateCurrentSession,
   ]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const toast = useToast();
 
@@ -48,12 +52,19 @@ export const Prompts: React.FC = () => {
     getPromptCategoryList()
       .then((res) => {
         if (res && res.result && res.result.length) {
-          setPromptCategories(
-            res.result.map((item) => {
-              item.color = generateRandomColor();
-              return item;
-            }),
-          );
+          const result = res.result.map((item) => {
+            item.color = generateRandomColor();
+            return item;
+          });
+          result.unshift({
+            category: '全部',
+            id: 0,
+            createTime: [],
+            description: '全部',
+            updateTime: [],
+            color: generateRandomColor(),
+          } as PromptCategory);
+          setPromptCategories(result);
         }
       })
       .catch((err) => {
@@ -62,16 +73,26 @@ export const Prompts: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     getPromptList(selectedCategoryId ?? 0)
       .then((res) => {
         if (res && res.result && res.result.length) {
-          setPrompts(res.result);
+          setPrompts(
+            res.result.map((item) => {
+              item.prompt = item.prompt.substring(0, Math.floor(item.prompt.length / 2));
+              item.prompt += '..... 具体请点击「使用」按钮';
+              return item;
+            }),
+          );
         } else {
           setPrompts([]);
         }
       })
       .catch((err) => {
         console.log('err: ', err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [selectedCategoryId]);
 
@@ -88,7 +109,7 @@ export const Prompts: React.FC = () => {
               if (tag.id !== selectedCategoryId) {
                 setSelectedCategoryId(tag.id);
               } else {
-                setSelectedCategoryId(undefined);
+                setSelectedCategoryId(0);
               }
             }}
             seleced={selectedCategoryId === tag.id}
@@ -96,56 +117,69 @@ export const Prompts: React.FC = () => {
         ))}
       </div>
 
-      <ul className={styles.promptList}>
-        {prompts.map((prompt) => (
-          <li className={styles.promptContent} key={prompt.id}>
-            <div className={styles.cardBody}>
-              <div className={styles.promptHeader}>
-                <h4 className={styles.promptTitle}>{prompt.act}</h4>
-                <Button
-                  size="xs"
-                  onClick={() => {
-                    setCurrentPrompt(prompt);
+      {loading ? (
+        <Flex justifyContent={'center'} alignItems={'center'} padding={'3rem'}>
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Flex>
+      ) : (
+        <ul className={styles.promptList}>
+          {prompts.map((prompt) => (
+            <li className={styles.promptContent} key={prompt.id}>
+              <div className={styles.cardBody}>
+                <div className={styles.promptHeader}>
+                  {/* <LogoLoading /> */}
+                  <h4 className={styles.promptTitle}>{prompt.act}</h4>
+                  <Button
+                    size="xs"
+                    onClick={() => {
+                      setCurrentPrompt(prompt);
 
-                    const promptContent = prompt.prompt;
-                    const slots = promptContent.match(/\[(.*?)\]/g) as string[];
-                    if (slots && Array.isArray(slots) && slots.length) {
-                      const slotFields = slots.reduce<Record<string, string>>(
-                        (res, cur) => {
-                          const slotField = cur.substring(1, cur.length - 1).trim();
-                          res[slotField] = '';
-                          return res;
-                        },
-                        {},
-                      );
-                      setSlotFields(slotFields);
-                      onOpen();
-                    } else {
-                      setSlotFields({});
+                      const promptContent = prompt.prompt;
+                      const slots = promptContent.match(/\[(.*?)\]/g) as string[];
+                      if (slots && Array.isArray(slots) && slots.length) {
+                        const slotFields = slots.reduce<Record<string, string>>(
+                          (res, cur) => {
+                            const slotField = cur.substring(1, cur.length - 1).trim();
+                            res[slotField] = '';
+                            return res;
+                          },
+                          {},
+                        );
+                        setSlotFields(slotFields);
+                        onOpen();
+                      } else {
+                        setSlotFields({});
 
-                      window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
+                        window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
 
-                      createNewSession({
-                        promptId: prompt.id + '',
-                        promptRule: prompt.act,
-                      });
-                      updateCurrentSession((session) => {
-                        session.slotFields = {};
-                      });
-                      router.push('/chat');
-                    }
-                  }}
-                >
-                  使用
-                </Button>
+                        createNewSession({
+                          promptId: prompt.id + '',
+                          promptRule: prompt.act,
+                        });
+                        updateCurrentSession((session) => {
+                          session.slotFields = {};
+                        });
+                        router.push('/chat');
+                      }
+                    }}
+                  >
+                    使用
+                  </Button>
+                </div>
+                <span className={styles.promptDetail}>{prompt.prompt}</span>
               </div>
-              <span className={styles.promptDetail}>{prompt.prompt}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{currentPrompt?.act}</ModalHeader>

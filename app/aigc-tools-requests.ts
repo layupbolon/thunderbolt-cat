@@ -129,12 +129,14 @@ export async function getPromptCategoryList(): Promise<BaseResponse<PromptCatego
 }
 
 export async function getPromptList(categoryId: number): Promise<BaseResponse<Prompt[]>> {
+  const body: any = {};
+  if (categoryId !== 0) {
+    body.categoryId = categoryId;
+  }
   return fetchImpl({
     url: '/api/prompt-list',
     method: 'POST',
-    body: {
-      categoryId,
-    },
+    body,
     withoutCredentials: true,
   });
 }

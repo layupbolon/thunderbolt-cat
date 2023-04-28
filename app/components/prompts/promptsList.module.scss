@@ -1,5 +1,7 @@
 .container {
+  margin-top: 2rem;
   padding: 0 20px;
+  height: 100%;
 
   p {
     font-size: 1rem;
@@ -40,7 +42,7 @@
   margin-bottom: 12px;
 }
 
-.promptTitle{
+.promptTitle {
   color: rgb(29, 147, 171);
   font-size: 1rem;
   font-weight: 700;

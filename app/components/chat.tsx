@@ -438,15 +438,26 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
 
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // if ArrowUp and no userInput
-    if (e.key === 'ArrowUp' && userInput.length <= 0) {
-      setUserInput(beforeInput);
+    // // if ArrowUp and no userInput
+    // if (e.key === 'ArrowUp' && userInput.length <= 0) {
+    //   setUserInput(beforeInput);
+    //   e.preventDefault();
+    //   return;
+    // }
+    // if (shouldSubmit(e)) {
+    //   onUserSubmit();
+    //   e.preventDefault();
+    // }
+
+    if (e.key == 'Enter' && e.shiftKey) {
+      // 阻止原生的换行事件
       e.preventDefault();
-      return;
-    }
-    if (shouldSubmit(e)) {
+      // 手动换行
+      setUserInput((pre) => pre + '\n');
+    } else if (e.key == 'Enter') {
+      // 阻止原生的换行事件
+      e.preventDefault();
       onUserSubmit();
-      e.preventDefault();
     }
   };
   const onRightClick = (e: any, message: Message) => {
@@ -677,13 +688,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
           <textarea
             ref={inputRef}
             className={styles['chat-input']}
-            placeholder={(() => {
-              var inputHints = `${submitKey} 发送`;
-              if (submitKey === String(SubmitKey.Enter)) {
-                inputHints += '，Shift + Enter 换行';
-              }
-              return inputHints;
-            })()}
+            placeholder={'Enter 发送，Shift + Enter 换行'}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}

@@ -117,12 +117,7 @@ export default function UpgradePackageList() {
   }, [gray, packages, toast]);
 
   return (
-    <Box
-      padding={'10rem 0'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-      minH={'100%'}
-      minW={'100%'}
-    >
+    <Box padding={'10rem 0'} minH={'100%'} minW={'100%'}>
       <Header back />
       <VStack spacing={2} textAlign="center">
         <Heading as="h1" fontSize="4xl">

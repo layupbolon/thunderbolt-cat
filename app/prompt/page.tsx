@@ -1,17 +1,12 @@
 'use client';
 
-import { useColorModeValue, VStack, Heading, Box, Text } from '@chakra-ui/react';
+import { VStack, Heading, Box, Text } from '@chakra-ui/react';
 import { Header } from '../components/header/Header';
 import { Prompts } from '../components/prompts/PromptsList';
 
 export default function PromptPage() {
   return (
-    <Box
-      padding={'10rem 0'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-      minH={'100%'}
-      minW={'100%'}
-    >
+    <Box padding={'6rem 0 3rem'} display={'flex'} flexDirection={'column'}>
       <Header back />
       <VStack spacing={2} textAlign="center">
         <Heading as="h1" fontSize="4xl">

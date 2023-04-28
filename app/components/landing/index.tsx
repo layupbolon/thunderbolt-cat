@@ -31,12 +31,12 @@ export const Landing = () => {
               bg: 'linear(to-l, #2d9164, #131f62)',
             }}
             onClick={() => {
-              router.push('/chat');
+              router.push('/prompt');
             }}
           >
             立即使用
           </Button>
-          <Button
+          {/* <Button
             colorScheme="gray"
             size={'lg'}
             style={{ marginLeft: '1rem' }}
@@ -45,7 +45,7 @@ export const Landing = () => {
             }}
           >
             快捷指令
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>
