@@ -6,7 +6,7 @@ import type {
   PromptCategory,
   UserInfo,
 } from './aigc-typings';
-import { TOKEN_STORAGE_KEY } from './constant';
+import { TOKEN_STORAGE_KEY, USER_ACCOUNT } from './constant';
 
 async function fetchImpl({
   body,
@@ -191,6 +191,15 @@ export async function getInviteUrl(account: string): Promise<
 > {
   return fetchImpl({
     url: `/api/invite/url/${account}`,
+    method: 'GET',
+  });
+}
+
+export async function getUserByAccount(
+  account = window.localStorage.getItem(USER_ACCOUNT),
+): Promise<BaseResponse<UserInfo>> {
+  return fetchImpl({
+    url: `/api/user/${account}`,
     method: 'GET',
   });
 }

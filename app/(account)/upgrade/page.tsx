@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { Header } from '../../components/header/Header';
-import { getPackageList, getPayUrl, getUserByToken } from '../../aigc-tools-requests';
+import { getPackageList, getPayUrl, getUserByAccount } from '../../aigc-tools-requests';
 import { PackageInfo } from '@/app/aigc-typings';
 import { PAY_PLAN_ID, USER_INFO_STORAGE_KEY } from '@/app/constant';
 
@@ -44,7 +44,7 @@ export default function UpgradePackageList() {
     getPackageList().then((res) => {
       setPackages(res.result);
     });
-    getUserByToken().then((res) => {
+    getUserByAccount().then((res) => {
       window.localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(res.result));
     });
   }, []);
@@ -70,7 +70,7 @@ export default function UpgradePackageList() {
             </Text>
           </HStack>
         </Box>
-        <VStack bg={gray} py={4} borderBottomRadius={'xl'}>
+        <VStack py={4} borderBottomRadius={'xl'}>
           <List spacing={3} textAlign="start" px={12}>
             <ListItem>
               <ListIcon as={FaCheckCircle} color="green.500" />

@@ -17,7 +17,7 @@ import {
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../aigc-tools-requests';
-import { TOKEN_STORAGE_KEY } from '../../constant';
+import { TOKEN_STORAGE_KEY, USER_ACCOUNT } from '../../constant';
 
 export default function SimpleCard() {
   const [account, setAccount] = useState<string>();
@@ -36,6 +36,7 @@ export default function SimpleCard() {
             isClosable: true,
           });
           window.localStorage.setItem(TOKEN_STORAGE_KEY, res.jwt);
+          window.localStorage.setItem(USER_ACCOUNT, account!);
           router.replace('/');
         } else {
           toast({

@@ -24,7 +24,7 @@ import {
   getInviteUrl,
   getPackageList,
   getPayUrl,
-  getUserByToken,
+  getUserByAccount,
 } from '../../aigc-tools-requests';
 import { PackageInfo } from '@/app/aigc-typings';
 import { PAY_PLAN_ID, USER_INFO_STORAGE_KEY } from '@/app/constant';
@@ -52,7 +52,7 @@ export default function Invite() {
   const toast = useToast();
 
   useEffect(() => {
-    getUserByToken()
+    getUserByAccount()
       .then((res) => {
         getInviteUrl(res.result.account).then((res) => {
           setInviteUrl(res.result.inviteUrl);

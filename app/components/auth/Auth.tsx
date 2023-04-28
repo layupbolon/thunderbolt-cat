@@ -12,7 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TOKEN_STORAGE_KEY } from '../../constant';
-import { getUserByToken } from '../../aigc-tools-requests';
+import { getUserByAccount } from '../../aigc-tools-requests';
 
 interface Props {}
 
@@ -26,7 +26,7 @@ export const Auth: React.FC<Props> = ({}) => {
       setModalVisible(true);
     }
     // else {
-    //   getUserByToken().then((res) => {
+    //   getUserByAccount().then((res) => {
     //     console.log('res: ', res);
     //   });
     // }

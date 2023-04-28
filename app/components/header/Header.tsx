@@ -33,7 +33,7 @@ import {
   InputRightAddon,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
-import { getUserByToken, getInviteUrl } from '../../aigc-tools-requests';
+import { getUserByAccount, getInviteUrl } from '../../aigc-tools-requests';
 import { UserInfo } from '@/app/aigc-typings';
 import { ArrowForwardIcon, CopyIcon } from '@chakra-ui/icons';
 import { copyToClipboard } from '@/app/utils';
@@ -50,7 +50,7 @@ export const Header = (props: Props) => {
   const router = useRouter();
 
   const handleGetUserByToken = useCallback(() => {
-    getUserByToken()
+    getUserByAccount()
       .then((res) => {
         setUser(res.result);
 
@@ -199,7 +199,14 @@ export const Header = (props: Props) => {
                     <Stack direction={'row'} justify={'center'} spacing={6}>
                       {(user?.vipType === 0 || user?.vipType === 1) && (
                         <Stack spacing={0} align={'center'} direction={'row'}>
-                          <Text fontSize={'sm'}>剩余{user?.visitLimit ?? 0}次</Text>
+                          <Text fontSize={'sm'}>
+                            剩余
+                            {Math.max(
+                              (user?.visitLimit ?? 0) - (user?.visitCount ?? 0),
+                              0,
+                            )}
+                            次
+                          </Text>
                         </Stack>
                       )}
                       {user?.vipType === 2 &&
