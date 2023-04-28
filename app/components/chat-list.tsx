@@ -37,7 +37,15 @@ export function ChatItem(props: {
             <div className={styles['chat-item-count']}>{`${props.count} 条对话`}</div>
             <div className={styles['chat-item-date']}>{props.time}</div>
           </div>
-          <div className={styles['chat-item-delete']} onClick={props.onDelete}>
+          <div
+            className={styles['chat-item-delete']}
+            onClick={() => {
+              props.onClick?.();
+              setTimeout(() => {
+                props.onDelete?.();
+              }, 500);
+            }}
+          >
             <DeleteIcon />
           </div>
         </div>
@@ -47,15 +55,14 @@ export function ChatItem(props: {
 }
 
 export function ChatList() {
-  const [sessions, selectedIndex, selectSession, removeSession, moveSession] =
+  const [sessions, selectedIndex, selectSession, deleteSession, moveSession] =
     useChatStore((state) => [
       state.sessions,
       state.currentSessionIndex,
       state.selectSession,
-      state.removeSession,
+      state.deleteSession,
       state.moveSession,
     ]);
-  const chatStore = useChatStore();
 
   const onDragEnd: OnDragEndResponder = (result) => {
     const { destination, source } = result;
@@ -92,7 +99,7 @@ export function ChatList() {
                 index={i}
                 selected={i === selectedIndex}
                 onClick={() => selectSession(i)}
-                onDelete={chatStore.deleteSession}
+                onDelete={deleteSession}
               />
             ))}
             {provided.placeholder}

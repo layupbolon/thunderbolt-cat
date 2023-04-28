@@ -78,7 +78,6 @@ function _Home() {
 
   return (
     <div className={styles['tight-container']}>
-      {/* <Auth /> */}
       <Header back />
       <div className={styles.sidebar + ` ${showSideBar && styles['sidebar-show']}`}>
         <div
@@ -93,7 +92,12 @@ function _Home() {
         <div className={styles['sidebar-tail']}>
           <div className={styles['sidebar-actions']}>
             <div className={styles['sidebar-action'] + ' ' + styles.mobile}>
-              <IconButton icon={<CloseIcon />} onClick={chatStore.deleteSession} />
+              <IconButton
+                icon={<CloseIcon />}
+                onClick={() => {
+                  chatStore.deleteSession();
+                }}
+              />
             </div>
             {/* <div className={styles["sidebar-action"]}>
               <IconButton

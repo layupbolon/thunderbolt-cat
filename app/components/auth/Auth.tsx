@@ -12,7 +12,6 @@ import {
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TOKEN_STORAGE_KEY } from '../../constant';
-import { getUserByAccount } from '../../aigc-tools-requests';
 
 interface Props {}
 
@@ -25,11 +24,6 @@ export const Auth: React.FC<Props> = ({}) => {
     if (!storageToken) {
       setModalVisible(true);
     }
-    // else {
-    //   getUserByAccount().then((res) => {
-    //     console.log('res: ', res);
-    //   });
-    // }
   }, []);
 
   return (

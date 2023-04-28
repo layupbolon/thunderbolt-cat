@@ -201,5 +201,10 @@ export async function getUserByAccount(
   return fetchImpl({
     url: `/api/user/${account}`,
     method: 'GET',
+  }).then((res) => {
+    if (res && res.result) {
+      return res;
+    }
+    return Promise.reject(res);
   });
 }

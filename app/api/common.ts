@@ -18,7 +18,6 @@ export async function requestOpenai(req: NextRequest) {
   console.log('[Proxy] ', openaiPath);
 
   const body = await req.json();
-  console.log('body: ', body);
 
   // return fetch(`${PROTOCOL}://${BASE_URL}/${openaiPath}`, {
   return fetch(`${url}/${openaiPath}`, {

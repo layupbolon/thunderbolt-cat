@@ -44,9 +44,13 @@ export default function UpgradePackageList() {
     getPackageList().then((res) => {
       setPackages(res.result);
     });
-    getUserByAccount().then((res) => {
-      window.localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(res.result));
-    });
+    getUserByAccount()
+      .then((res) => {
+        window.localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(res.result));
+      })
+      .catch(() => {
+        window.location.href = '/login';
+      });
   }, []);
 
   const gray = useColorModeValue('gray.50', 'gray.800');
