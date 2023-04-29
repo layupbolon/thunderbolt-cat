@@ -9,6 +9,7 @@
     "start": "next start -p 8000",
     "lint": "next lint",
     "fetch": "node ./scripts/fetch-prompts.mjs",
+    "serve": "yarn build && pm2 start yarn --name 'aigc' --start",
     "prepare": "husky install"
   },
   "dependencies": {

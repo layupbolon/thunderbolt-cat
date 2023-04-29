@@ -21,6 +21,7 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { register, requestValidateCode } from '../../aigc-tools-requests';
 import { INVITE_CODE } from '@/app/constant';
+import Logo from '../../icons/logo.svg';
 
 export default function SignupCard() {
   const toast = useToast();
@@ -117,10 +118,11 @@ export default function SignupCard() {
     <Flex minH={'100vh'} minW={'100vw'} align={'center'} justify={'center'}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
-          <Heading fontSize={'4xl'} textAlign={'center'}>
+          <Logo />
+          <Heading fontSize={'4xl'} textAlign={'center'} color="white">
             注册账户
           </Heading>
-          <Text fontSize={'lg'} color={'gray.600'}>
+          <Text fontSize={'lg'} color={'rgb(187, 187, 187)'}>
             享受AI带来的便利吧
           </Text>
         </Stack>

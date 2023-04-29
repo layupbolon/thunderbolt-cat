@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '../../aigc-tools-requests';
 import { TOKEN_STORAGE_KEY, USER_ACCOUNT } from '../../constant';
+import Logo from '../../icons/logo.svg';
 
 export default function SimpleCard() {
   const [account, setAccount] = useState<string>();
@@ -61,8 +62,11 @@ export default function SimpleCard() {
     <Flex minH={'100vh'} minW={'100vw'} align={'center'} justify={'center'}>
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
         <Stack align={'center'}>
-          <Heading fontSize={'4xl'}>登录账户</Heading>
-          <Text fontSize={'lg'} color={'gray.600'}>
+          <Logo />
+          <Heading fontSize={'4xl'} color="white">
+            登录账户
+          </Heading>
+          <Text fontSize={'lg'} color={'rgb(187, 187, 187)'}>
             登录后可获得免费使用次数
           </Text>
         </Stack>
