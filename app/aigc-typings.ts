@@ -50,6 +50,7 @@ export interface Prompt {
   createTime: string;
   id: number;
   prompt: string;
+  title: string;
   updateTime: string;
   userId: string;
 }

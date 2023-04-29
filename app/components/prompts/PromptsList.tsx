@@ -86,6 +86,7 @@ export const Prompts: React.FC = () => {
               createTime: '',
               updateTime: '',
               userId: '',
+              title: '万能',
             });
           }
           setPrompts(prompts);
@@ -139,7 +140,7 @@ export const Prompts: React.FC = () => {
               <div className={styles.cardBody}>
                 <div className={styles.promptHeader}>
                   {/* <LogoLoading /> */}
-                  <h4 className={styles.promptTitle}>{prompt.act}</h4>
+                  <h4 className={styles.promptTitle}>{prompt.title}</h4>
                   <Button
                     size="xs"
                     color={'rgb(48, 48, 48)'}
