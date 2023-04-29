@@ -1,14 +1,23 @@
 'use client';
 
 import { Button } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './landing.module.scss';
-import { LOGO_SLOGAN } from '@/app/constant';
+import { INVITE_CODE, LOGO_SLOGAN } from '@/app/constant';
 import Logo from '../../icons/logo.svg';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { useEffect } from 'react';
 
 export const Landing = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const invite = searchParams.get('invite');
+    if (invite) {
+      window.localStorage.setItem(INVITE_CODE, invite);
+    }
+  }, [searchParams]);
 
   return (
     <div className={styles.container}>
@@ -36,16 +45,6 @@ export const Landing = () => {
           >
             立即使用
           </Button>
-          {/* <Button
-            colorScheme="gray"
-            size={'lg'}
-            style={{ marginLeft: '1rem' }}
-            onClick={() => {
-              router.push('/prompt');
-            }}
-          >
-            快捷指令
-          </Button> */}
         </div>
       </div>
     </div>

@@ -53,23 +53,21 @@ export default function UpgradePackageList() {
       });
   }, []);
 
-  const gray = useColorModeValue('gray.50', 'gray.800');
-
   const renderPackages = useMemo(() => {
     return packages.map((pkg) => (
       <PriceWrapper key={pkg.id}>
         <Box py={4} px={12}>
-          <Text fontWeight="500" fontSize="2xl">
+          <Text fontWeight="500" fontSize="2xl" color={'white'}>
             {pkg.planName}
           </Text>
-          <HStack justifyContent="center">
-            <Text fontSize="3xl" fontWeight="600">
+          <HStack justifyContent="center" color={'white'}>
+            <Text fontSize="2xl" fontWeight="600">
               ￥
             </Text>
-            <Text fontSize="5xl" fontWeight="900">
+            <Text fontSize="4xl" fontWeight="900">
               {pkg.price}
             </Text>
-            <Text fontSize="3xl" color="gray.500">
+            <Text fontSize="2xl" color="gray.500">
               /{pkg.count > 0 ? `${pkg.count}次` : pkg.day > 0 ? `${pkg.day}天` : 0}
             </Text>
           </HStack>
@@ -77,8 +75,8 @@ export default function UpgradePackageList() {
         <VStack py={4} borderBottomRadius={'xl'}>
           <List spacing={3} textAlign="start" px={12}>
             <ListItem>
-              <ListIcon as={FaCheckCircle} color="green.500" />
-              {pkg.planDescription}
+              {/* <ListIcon as={FaCheckCircle} color="green.500" /> */}
+              <Text color="white">{pkg.planDescription}</Text>
             </ListItem>
             {/* <ListItem>
             <ListIcon as={FaCheckCircle} color="green.500" />
@@ -92,8 +90,10 @@ export default function UpgradePackageList() {
           <Box w="80%" pt={7}>
             <Button
               w="full"
-              variant="outline"
-              colorScheme="teal"
+              bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
+              _hover={{
+                bg: 'linear(to-l, #2d9164, #131f62)',
+              }}
               onClick={() => {
                 getPayUrl(pkg)
                   .then((res) => {
@@ -118,12 +118,12 @@ export default function UpgradePackageList() {
         </VStack>
       </PriceWrapper>
     ));
-  }, [gray, packages, toast]);
+  }, [packages, toast]);
 
   return (
-    <Box padding={'10rem 0'} minH={'100%'} minW={'100%'}>
+    <Box padding={'0 0 3rem'} display={'flex'} flexDirection={'column'}>
       <Header back />
-      <VStack spacing={2} textAlign="center">
+      <VStack spacing={2} textAlign="center" mt={'8rem'}>
         <Heading as="h1" fontSize="4xl">
           购买套餐
         </Heading>

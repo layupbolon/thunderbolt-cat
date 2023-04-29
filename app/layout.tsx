@@ -41,7 +41,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <CacheProvider>
           <ChakraProvider>
-            <DarkMode>{children}</DarkMode>
+            {/* <DarkMode>{children}</DarkMode> */}
+            {children}
           </ChakraProvider>
         </CacheProvider>
       </body>

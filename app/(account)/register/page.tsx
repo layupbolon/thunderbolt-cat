@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { register, requestValidateCode } from '../../aigc-tools-requests';
+import { INVITE_CODE } from '@/app/constant';
 
 export default function SignupCard() {
   const toast = useToast();
@@ -92,7 +93,7 @@ export default function SignupCard() {
   };
 
   const handleRegister = () => {
-    register(account!, pwd!, validateCode!, searchParams.get('invite'))
+    register(account!, pwd!, validateCode!, window.localStorage.getItem(INVITE_CODE))
       .then(() => {
         toast({
           title: '注册成功',

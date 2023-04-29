@@ -77,29 +77,30 @@ function _Home() {
   }
 
   return (
-    <div className={styles['tight-container']}>
-      <Header back />
-      <div className={styles.sidebar + ` ${showSideBar && styles['sidebar-show']}`}>
-        <div
-          className={styles['sidebar-body']}
-          onClick={() => {
-            setShowSideBar(false);
-          }}
-        >
-          <ChatList />
-        </div>
+    <div className={styles['chat-container']}>
+      <Header back fixed />
+      <div className={styles['tight-container']}>
+        <div className={styles.sidebar + ` ${showSideBar && styles['sidebar-show']}`}>
+          <div
+            className={styles['sidebar-body']}
+            onClick={() => {
+              setShowSideBar(false);
+            }}
+          >
+            <ChatList />
+          </div>
 
-        <div className={styles['sidebar-tail']}>
-          <div className={styles['sidebar-actions']}>
-            <div className={styles['sidebar-action'] + ' ' + styles.mobile}>
-              <IconButton
-                icon={<CloseIcon />}
-                onClick={() => {
-                  chatStore.deleteSession();
-                }}
-              />
-            </div>
-            {/* <div className={styles["sidebar-action"]}>
+          <div className={styles['sidebar-tail']}>
+            <div className={styles['sidebar-actions']}>
+              <div className={styles['sidebar-action'] + ' ' + styles.mobile}>
+                <IconButton
+                  icon={<CloseIcon />}
+                  onClick={() => {
+                    chatStore.deleteSession();
+                  }}
+                />
+              </div>
+              {/* <div className={styles["sidebar-action"]}>
               <IconButton
                 icon={<SettingsIcon />}
                 onClick={() => {
@@ -109,7 +110,7 @@ function _Home() {
                 shadow
               />
             </div> */}
-            {/* <Button
+              {/* <Button
               color="#ddd"
               leftIcon={<AddIcon />}
               onClick={() => {
@@ -119,27 +120,28 @@ function _Home() {
             >
               {Locale.Home.NewChat}
             </Button> */}
-            <div className={styles['sidebar-action']}>
-              <IconButton
-                icon={<AddIcon />}
-                text={'新的聊天'}
-                onClick={() => {
-                  createNewSession();
-                  setShowSideBar(false);
-                }}
-                shadow
-              />
+              <div className={styles['sidebar-action']}>
+                <IconButton
+                  icon={<AddIcon />}
+                  text={'新的聊天'}
+                  onClick={() => {
+                    createNewSession();
+                    setShowSideBar(false);
+                  }}
+                  shadow
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles['window-content']}>
-        <Chat
-          key="chat"
-          showSideBar={() => setShowSideBar(true)}
-          sideBarShowing={showSideBar}
-        />
+        <div className={styles['window-content']}>
+          <Chat
+            key="chat"
+            showSideBar={() => setShowSideBar(true)}
+            sideBarShowing={showSideBar}
+          />
+        </div>
       </div>
     </div>
   );

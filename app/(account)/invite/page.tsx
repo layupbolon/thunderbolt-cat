@@ -64,18 +64,11 @@ export default function Invite() {
       });
   }, []);
 
-  const gray = useColorModeValue('gray.50', 'gray.800');
-
   return (
-    <Box
-      padding={'10rem 0'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-      minH={'100%'}
-      minW={'100%'}
-    >
-      <Header back />
-      <VStack spacing={2} textAlign="center" mb="2rem">
-        <Heading as="h1" fontSize="4xl">
+    <Box padding={'0 0 3rem'} display={'flex'} flexDirection={'column'}>
+      <Header back fixed />
+      <VStack spacing={2} textAlign="center" mt="10rem">
+        <Heading as="h1" fontSize="4xl" mb={'2rem'} color="white">
           邀请好友
         </Heading>
         {/* <Text fontSize="lg" color={'gray.500'}>
@@ -86,11 +79,17 @@ export default function Invite() {
         <Stack direction={'row'} justify={'center'} spacing={6}>
           <Stack spacing={0} align={'center'}>
             <VStack spacing={2} textAlign="center" mb="2rem">
-              <Text fontSize="md" fontWeight="600">
+              <Text fontSize="md" fontWeight="600" color="#a0aec0">
                 专属邀请链接：
               </Text>
               <InputGroup size="lg">
-                <Input size="lg" value={inviteUrl} isReadOnly css={{ width: '20rem' }} />
+                <Input
+                  size="lg"
+                  value={inviteUrl}
+                  isReadOnly
+                  css={{ width: '20rem' }}
+                  color="#a0aec0"
+                />
                 <InputRightAddon
                   onClick={() => {
                     copyToClipboard(inviteUrl);
@@ -102,13 +101,13 @@ export default function Invite() {
             </VStack>
 
             <VStack spacing={2} textAlign="center" style={{ marginBottom: '2rem' }}>
-              <Text fontSize="md" fontWeight="600">
+              <Text fontSize="md" fontWeight="600" color="#a0aec0">
                 专属邀请二维码：
               </Text>
               <Image src={`data:image/gif;base64,${inviteQrCode}`} alt="invite qrcode" />
             </VStack>
 
-            <VStack spacing={2} mb="2rem">
+            <VStack spacing={2} mb="2rem" color="#a0aec0">
               <Text fontSize="md" fontWeight="600">
                 邀请规则：
               </Text>

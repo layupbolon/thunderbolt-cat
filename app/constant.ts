@@ -12,3 +12,4 @@ export const USER_ACCOUNT = 'aigc_user_account';
 export const LOGO_SLOGAN = '霹雳猫';
 export const PAY_PLAN_ID = 'aigc_pay_plan_id';
 export const SLOT_FIELDS = 'aigc_slot_fields';
+export const INVITE_CODE = 'aigc_invite_code';

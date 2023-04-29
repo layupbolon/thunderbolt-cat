@@ -17,7 +17,7 @@
   --border-in-light: 1px solid rgb(222, 222, 222);
 
   /* header 高度 */
-  --header-height: 3.5rem;
+  --header-height: 4rem;
 }
 
 @mixin dark {
@@ -36,7 +36,7 @@
   --theme-color: var(--gray);
 
   /* header 高度 */
-  --header-height: 3.5rem;
+  --header-height: 4rem;
 }
 
 .light {
@@ -85,9 +85,12 @@ html {
   height: var(--full-height);
 }
 
+h1{
+  color: white;
+}
+
 body {
   // background-color: var(--gray);
-  color: var(--black);
   margin: 0;
   padding: 0;
   height: var(--full-height);
@@ -228,7 +231,7 @@ input[type='text']:not([data-theme='dark']) {
   background: var(--white);
   color: var(--black);
   padding: 0 10px;
-  max-width: 50%;
+  max-width: 100%;
 }
 
 div.math {

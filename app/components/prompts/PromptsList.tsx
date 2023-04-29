@@ -23,7 +23,6 @@ import {
 import { useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
 import { SLOT_FIELDS } from '@/app/constant';
-import LogoLoading from '../../icons/logo_loading.svg';
 
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
@@ -77,13 +76,19 @@ export const Prompts: React.FC = () => {
     getPromptList(selectedCategoryId ?? 0)
       .then((res) => {
         if (res && res.result && res.result.length) {
-          setPrompts(
-            res.result.map((item) => {
-              item.prompt = item.prompt.substring(0, Math.floor(item.prompt.length / 2));
-              item.prompt += '..... 具体请点击「使用」按钮';
-              return item;
-            }),
-          );
+          const prompts = res.result;
+          if ((selectedCategoryId ?? 0) === 0) {
+            prompts.unshift({
+              prompt: '万能',
+              categoryId: -1,
+              id: -1,
+              act: '万能',
+              createTime: '',
+              updateTime: '',
+              userId: '',
+            });
+          }
+          setPrompts(prompts);
         } else {
           setPrompts([]);
         }
@@ -137,7 +142,17 @@ export const Prompts: React.FC = () => {
                   <h4 className={styles.promptTitle}>{prompt.act}</h4>
                   <Button
                     size="xs"
+                    color={'rgb(48, 48, 48)'}
                     onClick={() => {
+                      if (prompt.id === -1) {
+                        createNewSession();
+                        updateCurrentSession((session) => {
+                          session.topic = '万能';
+                        });
+                        router.push('/chat');
+                        return;
+                      }
+
                       setCurrentPrompt(prompt);
 
                       const promptContent = prompt.prompt;
@@ -172,7 +187,7 @@ export const Prompts: React.FC = () => {
                     使用
                   </Button>
                 </div>
-                <span className={styles.promptDetail}>{prompt.prompt}</span>
+                {/* <span className={styles.promptDetail}>{prompt.prompt}</span> */}
               </div>
             </li>
           ))}

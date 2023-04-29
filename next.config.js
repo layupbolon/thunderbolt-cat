@@ -1,6 +1,5 @@
-// const host = '45.32.94.79';
-const host = '45.63.57.39';
-// const host = '172.25.9.84'
+// const host = '45.63.57.39';
+const host = process.env.host ?? '45.63.57.39';
 const port = '8080';
 const url = `http://${host}:${port}`
 

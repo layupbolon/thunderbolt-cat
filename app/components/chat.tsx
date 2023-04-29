@@ -1,12 +1,5 @@
 import { memo, useState, useRef, useEffect, useLayoutEffect } from 'react';
-import {
-  Message,
-  SubmitKey,
-  useChatStore,
-  BOT_HELLO,
-  ROLES,
-  createMessage,
-} from '../store';
+import { Message, SubmitKey, useChatStore, ROLES, createMessage } from '../store';
 import {
   copyToClipboard,
   downloadAs,
@@ -17,7 +10,7 @@ import {
 } from '../utils';
 
 import dynamic from 'next/dynamic';
-import { useDebounce, useDebouncedCallback } from 'use-debounce';
+import { useDebouncedCallback } from 'use-debounce';
 import { useToast } from '@chakra-ui/react';
 
 import { Prompt, usePromptStore } from '../store/prompt';
@@ -39,7 +32,6 @@ import ReturnIcon from '../icons/return.svg';
 import SendWhiteIcon from '../icons/send-white.svg';
 import LoadingIcon from '../icons/three-dots.svg';
 import { ControllerPool } from '../requests';
-import { SLOT_FIELDS } from '../constant';
 
 const Markdown = dynamic(async () => memo((await import('./markdown')).Markdown), {
   loading: () => <LoadingIcon />,

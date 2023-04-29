@@ -6,9 +6,9 @@ import { Prompts } from '../components/prompts/PromptsList';
 
 export default function PromptPage() {
   return (
-    <Box padding={'6rem 0 3rem'} display={'flex'} flexDirection={'column'}>
+    <Box padding={'0 0 3rem'} display={'flex'} flexDirection={'column'}>
       <Header back />
-      <VStack spacing={2} textAlign="center">
+      <VStack spacing={2} textAlign="center" mt={'5rem'}>
         <Heading as="h1" fontSize="4xl">
           快捷指令
         </Heading>

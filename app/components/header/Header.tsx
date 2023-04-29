@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import styles from './header.module.scss';
-import ChatGPTIcon from '../../icons/chatgpt.svg';
 import LeftIcon from '../../icons/left.svg';
 import Logo from '../../icons/logo_header.svg';
 import { LOGO_SLOGAN } from '@/app/constant';
@@ -18,7 +17,6 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Stack,
@@ -26,20 +24,15 @@ import {
   Image,
   Text,
   keyframes,
-  Divider,
-  Highlight,
-  Input,
-  InputGroup,
-  InputRightAddon,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
-import { getUserByAccount, getInviteUrl } from '../../aigc-tools-requests';
+import { useCallback, useState } from 'react';
+import { getUserByAccount } from '../../aigc-tools-requests';
 import { UserInfo } from '@/app/aigc-typings';
-import { ArrowForwardIcon, CopyIcon } from '@chakra-ui/icons';
-import { copyToClipboard } from '@/app/utils';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
 
 interface Props {
   back?: boolean;
+  fixed?: boolean;
 }
 
 export const Header = (props: Props) => {
@@ -77,7 +70,7 @@ export const Header = (props: Props) => {
   const size = '40px';
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} style={props.fixed ? { position: 'fixed' } : {}}>
       <span
         className={styles.logo}
         onClick={() => {
