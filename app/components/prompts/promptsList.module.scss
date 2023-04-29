@@ -39,6 +39,10 @@
 .promptHeader {
   align-items: center;
   display: flex;
+
+  button{
+    min-width: 3rem !important;
+  }
 }
 
 .promptTitle {

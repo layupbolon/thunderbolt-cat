@@ -19,6 +19,7 @@ import {
   Spinner,
   useDisclosure,
   useToast,
+  Text,
 } from '@chakra-ui/react';
 import { useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
@@ -201,6 +202,9 @@ export const Prompts: React.FC = () => {
           <ModalHeader>{currentPrompt?.act}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
+            <Text size={'sm'} color={'rgb(187, 187, 187)'} mb="1.5rem">
+              {currentPrompt?.title}
+            </Text>
             {Object.keys(slotFields).map((key) => {
               return (
                 <FormControl key={key}>
