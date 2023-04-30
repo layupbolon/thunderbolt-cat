@@ -123,7 +123,6 @@ export const Prompts: React.FC = () => {
           />
         ))}
       </div>
-
       {loading ? (
         <Flex justifyContent={'center'} alignItems={'center'} padding={'3rem'}>
           <Spinner
@@ -137,90 +136,102 @@ export const Prompts: React.FC = () => {
       ) : (
         <ul className={styles.promptList}>
           {prompts.map((prompt) => (
-            <li className={styles.promptContent} key={prompt.id}>
+            <li
+              className={styles.promptContent}
+              key={prompt.id}
+              onClick={() => {
+                setCurrentPrompt(prompt);
+
+                // 万能模板
+                if (prompt.id === -1) {
+                  onOpen();
+                  return;
+                }
+
+                const promptContent = prompt.prompt;
+                const slots = promptContent.match(/\[(.*?)\]/g) as string[];
+                if (slots && Array.isArray(slots) && slots.length) {
+                  const slotFields = slots.reduce<Record<string, string>>((res, cur) => {
+                    res[cur] = '';
+                    return res;
+                  }, {});
+                  setSlotFields(slotFields);
+                  onOpen();
+                } else {
+                  setSlotFields({});
+
+                  window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
+
+                  createNewSession({
+                    promptId: prompt.id + '',
+                    promptRule: prompt.act,
+                  });
+                  updateCurrentSession((session) => {
+                    session.slotFields = {};
+                  });
+                  router.push('/chat');
+                }
+              }}
+            >
+              <div className={styles.overlay}>
+                <span className={styles.text}>去使用</span>
+              </div>
               <div className={styles.cardBody}>
                 <div className={styles.promptHeader}>
                   {/* <LogoLoading /> */}
-                  <h4 className={styles.promptTitle}>{prompt.title}</h4>
-                  <Button
-                    size="xs"
-                    color={'rgb(48, 48, 48)'}
-                    onClick={() => {
-                      if (prompt.id === -1) {
-                        createNewSession();
-                        updateCurrentSession((session) => {
-                          session.topic = '万能';
-                        });
-                        router.push('/chat');
-                        return;
-                      }
-
-                      setCurrentPrompt(prompt);
-
-                      const promptContent = prompt.prompt;
-                      const slots = promptContent.match(/\[(.*?)\]/g) as string[];
-                      if (slots && Array.isArray(slots) && slots.length) {
-                        const slotFields = slots.reduce<Record<string, string>>(
-                          (res, cur) => {
-                            const slotField = cur.substring(1, cur.length - 1).trim();
-                            res[slotField] = '';
-                            return res;
-                          },
-                          {},
-                        );
-                        setSlotFields(slotFields);
-                        onOpen();
-                      } else {
-                        setSlotFields({});
-
-                        window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
-
-                        createNewSession({
-                          promptId: prompt.id + '',
-                          promptRule: prompt.act,
-                        });
-                        updateCurrentSession((session) => {
-                          session.slotFields = {};
-                        });
-                        router.push('/chat');
-                      }
-                    }}
-                  >
-                    使用
-                  </Button>
+                  <h4 className={styles.promptTitle}>
+                    {prompt.act !== prompt.title ? (
+                      <>
+                        <span style={{ fontSize: '1.1rem' }}>{prompt.act}</span>
+                        <Text fontSize="0.5rem" color={'gray.500'}>
+                          {prompt.title}
+                        </Text>
+                      </>
+                    ) : (
+                      prompt.title
+                    )}
+                  </h4>
                 </div>
-                {/* <span className={styles.promptDetail}>{prompt.prompt}</span> */}
               </div>
             </li>
           ))}
         </ul>
+        // @ts-ignore
       )}
-
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{currentPrompt?.act}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <Text size={'sm'} color={'rgb(187, 187, 187)'} mb="1.5rem">
-              {currentPrompt?.title}
-            </Text>
-            {Object.keys(slotFields).map((key) => {
-              return (
-                <FormControl key={key}>
-                  <FormLabel>{key}</FormLabel>
-                  <Input
-                    value={slotFields[key]}
-                    onChange={(e) =>
-                      setSlotFields({
-                        ...slotFields,
-                        [key]: e.target.value,
-                      })
-                    }
-                  />
-                </FormControl>
-              );
-            })}
+            {currentPrompt?.act !== currentPrompt?.title && (
+              <Text size={'sm'} color={'rgb(187, 187, 187)'} mb="1.5rem">
+                {currentPrompt?.title}
+              </Text>
+            )}
+            {currentPrompt?.id === -1 ? (
+              <span>这是霹雳猫的基础模型，拥有全部的功能，可以完全自定义环境。</span>
+            ) : (
+              <>
+                {Object.keys(slotFields).map((key, index) => {
+                  return (
+                    <FormControl key={key}>
+                      <FormLabel>{key}</FormLabel>
+                      <Input
+                        autoFocus={index === 0}
+                        value={slotFields[key]}
+                        onChange={(e) =>
+                          setSlotFields({
+                            ...slotFields,
+                            [key]: e.target.value,
+                          })
+                        }
+                      />
+                    </FormControl>
+                  );
+                })}
+              </>
+            )}
           </ModalBody>
 
           <ModalFooter>
@@ -228,6 +239,15 @@ export const Prompts: React.FC = () => {
               colorScheme="blue"
               mr={3}
               onClick={() => {
+                if (currentPrompt?.id === -1) {
+                  createNewSession();
+                  updateCurrentSession((session) => {
+                    session.topic = '万能';
+                  });
+                  router.push('/chat');
+                  onClose();
+                  return;
+                }
                 createNewSession({
                   promptId: currentPrompt!.id + '',
                   promptRule: currentPrompt!.act,
@@ -238,9 +258,10 @@ export const Prompts: React.FC = () => {
                 router.push('/chat');
                 onClose();
               }}
-              isDisabled={Object.values(slotFields).some(
-                (value) => !value || !value.length,
-              )}
+              isDisabled={
+                currentPrompt?.id !== -1 &&
+                Object.values(slotFields).some((value) => !value || !value.length)
+              }
             >
               进入场景
             </Button>

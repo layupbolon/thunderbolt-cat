@@ -80,6 +80,7 @@ export default function SimpleCard() {
             <FormControl id="email">
               <FormLabel>手机号/邮箱</FormLabel>
               <Input
+                autoFocus
                 type="text"
                 value={account}
                 onChange={(e) => setAccount(e.currentTarget.value)}

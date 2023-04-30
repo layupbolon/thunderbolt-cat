@@ -30,6 +30,7 @@ import DownloadIcon from '../icons/download.svg';
 import ExportIcon from '../icons/export.svg';
 import ReturnIcon from '../icons/return.svg';
 import SendWhiteIcon from '../icons/send-white.svg';
+import ContinueIcon from '../icons/continue.svg';
 import LoadingIcon from '../icons/three-dots.svg';
 import { ControllerPool } from '../requests';
 
@@ -423,6 +424,15 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
     setAutoScroll(true);
   };
 
+  const onContinue = () => {
+    setIsLoading(true);
+    chatStore.onUserInput('继续', toast).then(() => setIsLoading(false));
+    setUserInput('');
+    setPromptHints([]);
+    if (!isMobileScreen()) inputRef.current?.focus();
+    setAutoScroll(true);
+  };
+
   // stop response
   const onUserStop = (messageId: number) => {
     ControllerPool.stop(sessionIndex, messageId);
@@ -691,6 +701,13 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             }}
             autoFocus={!props?.sideBarShowing}
             rows={inputRows}
+          />
+          <IconButton
+            icon={<ContinueIcon />}
+            text={'继续'}
+            className={styles['chat-input-continue']}
+            noDark
+            onClick={onContinue}
           />
           <IconButton
             icon={<SendWhiteIcon />}

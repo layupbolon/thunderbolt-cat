@@ -161,6 +161,10 @@ export interface ChatSession {
   lastSummarizeIndex: number;
   promptId?: string;
   slotFields?: Record<string, string>;
+  /**
+   * 此 session 是否第一次 chat；1代表是；0代表否
+   */
+  firstCall: number;
 }
 
 const DEFAULT_TOPIC = '新的聊天';
@@ -190,6 +194,7 @@ function createEmptySession(selectedPrompt?: {
     lastUpdate: createDate,
     lastSummarizeIndex: 0,
     promptId: selectedPrompt?.promptId,
+    firstCall: 1,
   };
 }
 
@@ -397,6 +402,7 @@ export const useChatStore = create<ChatStore>()(
         requestChatStream(sendMessages, {
           promptId: session.promptId,
           promptParams: session.slotFields,
+          firstCall: session.firstCall,
           onMessage(content, done) {
             // stream response
             if (done) {
@@ -440,15 +446,19 @@ export const useChatStore = create<ChatStore>()(
           },
           filterBot: !get().config.sendBotMessages,
           modelConfig: get().config.modelConfig,
+        }).finally(() => {
+          get().updateCurrentSession((session) => {
+            session.firstCall = 0;
+          });
         });
       },
 
       getMemoryPrompt() {
-        const session = get().currentSession();
-
         return {
           role: 'system',
-          content: '这是 ai 和用户的历史聊天总结作为前情提要：' + session.memoryPrompt,
+          content:
+            '这是 ai 和用户的历史聊天总结作为前情提要：' +
+            get().currentSession().memoryPrompt,
           date: '',
         } as Message;
       },
@@ -547,6 +557,7 @@ export const useChatStore = create<ChatStore>()(
             {
               promptId: session.promptId,
               promptParams: session.slotFields,
+              firstCall: 0,
               filterBot: false,
               onMessage(message, done) {
                 session.memoryPrompt = message;

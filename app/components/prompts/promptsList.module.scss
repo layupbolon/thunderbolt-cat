@@ -27,6 +27,12 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+  cursor: pointer;
+
+  &:hover .overlay {
+    height: 100%;
+  }
 }
 
 .cardBody {
@@ -40,9 +46,31 @@
   align-items: center;
   display: flex;
 
-  button{
+  button {
     min-width: 3rem !important;
   }
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  width: 100%;
+  height: 0;
+  transition: 0.5s ease;
+}
+
+.text {
+  color: #f3f3f3;
+  font-size: .8rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 .promptTitle {
