@@ -18,7 +18,6 @@ import {
   ModalOverlay,
   Spinner,
   useDisclosure,
-  useToast,
   Text,
 } from '@chakra-ui/react';
 import { useChatStore } from '../../store';
@@ -38,15 +37,14 @@ export const Prompts: React.FC = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
   const [slotFields, setSlotFields] = useState<Record<string, string>>({});
-  const [createNewSession, onUserInput, updateCurrentSession] = useChatStore((state) => [
+  const [createNewSession, updateCurrentSession] = useChatStore((state) => [
     state.newSession,
-    state.onUserInput,
     state.updateCurrentSession,
   ]);
+  const [search, setSearch] = useState<string>();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-  const toast = useToast();
 
   useEffect(() => {
     getPromptCategoryList()
@@ -105,7 +103,7 @@ export const Prompts: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <p>筛选</p>
+      <p>分类</p>
       <div className={styles.tagList}>
         {promptCategories.map((tag) => (
           <PromptTag
@@ -134,68 +132,93 @@ export const Prompts: React.FC = () => {
           />
         </Flex>
       ) : (
-        <ul className={styles.promptList}>
-          {prompts.map((prompt) => (
-            <li
-              className={styles.promptContent}
-              key={prompt.id}
-              onClick={() => {
-                setCurrentPrompt(prompt);
+        <>
+          <Input
+            placeholder="搜索快捷指令"
+            type="text"
+            size={'sm'}
+            style={{
+              marginTop: '2rem',
+              marginBottom: '1rem',
+              width: '20rem',
+              color: 'white',
+            }}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+          />
 
-                // 万能模板
-                if (prompt.id === -1) {
-                  onOpen();
-                  return;
-                }
+          <ul className={styles.promptList}>
+            {prompts
+              .filter((p) =>
+                search && search.length
+                  ? p.act.includes(search) || p.title.includes(search)
+                  : true,
+              )
+              .map((prompt) => (
+                <li
+                  className={styles.promptContent}
+                  key={prompt.id}
+                  onClick={() => {
+                    setCurrentPrompt(prompt);
 
-                const promptContent = prompt.prompt;
-                const slots = promptContent.match(/\[(.*?)\]/g) as string[];
-                if (slots && Array.isArray(slots) && slots.length) {
-                  const slotFields = slots.reduce<Record<string, string>>((res, cur) => {
-                    res[cur] = '';
-                    return res;
-                  }, {});
-                  setSlotFields(slotFields);
-                  onOpen();
-                } else {
-                  setSlotFields({});
+                    // 万能模板
+                    if (prompt.id === -1) {
+                      onOpen();
+                      return;
+                    }
 
-                  window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
+                    const promptContent = prompt.prompt;
+                    const slots = promptContent.match(/\[(.*?)\]/g) as string[];
+                    if (slots && Array.isArray(slots) && slots.length) {
+                      const slotFields = slots.reduce<Record<string, string>>(
+                        (res, cur) => {
+                          res[cur] = '';
+                          return res;
+                        },
+                        {},
+                      );
+                      setSlotFields(slotFields);
+                      onOpen();
+                    } else {
+                      setSlotFields({});
 
-                  createNewSession({
-                    promptId: prompt.id + '',
-                    promptRule: prompt.act,
-                  });
-                  updateCurrentSession((session) => {
-                    session.slotFields = {};
-                  });
-                  router.push('/chat');
-                }
-              }}
-            >
-              <div className={styles.overlay}>
-                <span className={styles.text}>去使用</span>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.promptHeader}>
-                  {/* <LogoLoading /> */}
-                  <h4 className={styles.promptTitle}>
-                    {prompt.act !== prompt.title ? (
-                      <>
-                        <span style={{ fontSize: '1.1rem' }}>{prompt.act}</span>
-                        <Text fontSize="0.5rem" color={'gray.500'}>
-                          {prompt.title}
-                        </Text>
-                      </>
-                    ) : (
-                      prompt.title
-                    )}
-                  </h4>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+                      window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
+
+                      createNewSession({
+                        promptId: prompt.id + '',
+                        promptRule: prompt.act,
+                      });
+                      updateCurrentSession((session) => {
+                        session.slotFields = {};
+                      });
+                      router.push('/chat');
+                    }
+                  }}
+                >
+                  <div className={styles.overlay}>
+                    <span className={styles.text}>去使用</span>
+                  </div>
+                  <div className={styles.cardBody}>
+                    <div className={styles.promptHeader}>
+                      {/* <LogoLoading /> */}
+                      <h4 className={styles.promptTitle}>
+                        {prompt.act !== prompt.title ? (
+                          <>
+                            <span style={{ fontSize: '1.1rem' }}>{prompt.act}</span>
+                            <Text fontSize="0.5rem" color={'gray.500'}>
+                              {prompt.title}
+                            </Text>
+                          </>
+                        ) : (
+                          prompt.title
+                        )}
+                      </h4>
+                    </div>
+                  </div>
+                </li>
+              ))}
+          </ul>
+        </>
         // @ts-ignore
       )}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
