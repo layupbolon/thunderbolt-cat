@@ -46,6 +46,10 @@ const nextConfig = {
         source: '/api/package-list',
         destination: `${url}/v1/member/plan/list`,
       },
+      {
+        source: '/api/query-prompt',
+        destination: `${url}/v1/prompt/list`,
+      },
     ]
   },
 };

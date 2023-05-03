@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import styles from './promptsList.module.scss';
 import { PromptTag } from './PromptTag';
-import { getPromptCategoryList, getPromptList } from '../../aigc-tools-requests';
+import {
+  getPromptCategoryList,
+  getPromptList,
+  searchPromptList,
+} from '../../aigc-tools-requests';
 import { Prompt, PromptCategory } from '@/app/aigc-typings';
 import {
   Button,
@@ -23,6 +27,7 @@ import {
 import { useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
 import { SLOT_FIELDS } from '@/app/constant';
+import { useDebouncedCallback } from 'use-debounce';
 
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
@@ -36,6 +41,7 @@ export const Prompts: React.FC = () => {
   const [promptCategories, setPromptCategories] = useState<PromptCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
+  const [searchPrompts, setSearchPrompts] = useState<Prompt[]>([]);
   const [slotFields, setSlotFields] = useState<Record<string, string>>({});
   const [createNewSession, updateCurrentSession] = useChatStore((state) => [
     state.newSession,
@@ -101,26 +107,67 @@ export const Prompts: React.FC = () => {
       });
   }, [selectedCategoryId]);
 
+  const onSearch = useDebouncedCallback(
+    (text: string) => {
+      setLoading(true);
+      setSearchPrompts([]);
+      searchPromptList(text)
+        .then((res) => {
+          if (res && res.result) {
+            setSearchPrompts(res.result.records);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    666,
+    { leading: false, trailing: true },
+  );
+
   return (
     <div className={styles.container}>
-      <p>分类</p>
-      <div className={styles.tagList}>
-        {promptCategories.map((tag) => (
-          <PromptTag
-            key={tag.id}
-            color={tag.color!}
-            name={tag.category}
-            onClick={() => {
-              if (tag.id !== selectedCategoryId) {
-                setSelectedCategoryId(tag.id);
-              } else {
-                setSelectedCategoryId(0);
-              }
-            }}
-            seleced={selectedCategoryId === tag.id}
-          />
-        ))}
+      <div className={styles.searchArea}>
+        <Input
+          placeholder="搜索快捷指令"
+          type="text"
+          style={{
+            marginTop: '0.5rem',
+            marginBottom: '1rem',
+            width: '35rem',
+            maxWidth: '90vw',
+            color: 'white',
+          }}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.currentTarget.value);
+            onSearch(e.currentTarget.value);
+          }}
+        />
       </div>
+      {search && search.length ? null : (
+        <>
+          <p>分类</p>
+          <div className={styles.tagList}>
+            {promptCategories.map((tag) => (
+              <PromptTag
+                key={tag.id}
+                color={tag.color!}
+                name={tag.category}
+                onClick={() => {
+                  if (tag.id !== selectedCategoryId) {
+                    setSelectedCategoryId(tag.id);
+                  } else {
+                    setSelectedCategoryId(0);
+                  }
+                }}
+                seleced={selectedCategoryId === tag.id}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
       {loading ? (
         <Flex justifyContent={'center'} alignItems={'center'} padding={'3rem'}>
           <Spinner
@@ -133,90 +180,73 @@ export const Prompts: React.FC = () => {
         </Flex>
       ) : (
         <>
-          <Input
-            placeholder="搜索快捷指令"
-            type="text"
-            size={'sm'}
-            style={{
-              marginTop: '2rem',
-              marginBottom: '1rem',
-              width: '20rem',
-              color: 'white',
-            }}
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-          />
-
           <ul className={styles.promptList}>
-            {prompts
-              .filter((p) =>
-                search && search.length
-                  ? p.act.includes(search) || p.title.includes(search)
-                  : true,
-              )
-              .map((prompt) => (
-                <li
-                  className={styles.promptContent}
-                  key={prompt.id}
-                  onClick={() => {
-                    setCurrentPrompt(prompt);
+            {(search && search.length && searchPrompts.length
+              ? searchPrompts
+              : prompts
+            ).map((prompt) => (
+              <li
+                className={styles.promptContent}
+                key={prompt.id}
+                onClick={() => {
+                  setCurrentPrompt(prompt);
 
-                    // 万能模板
-                    if (prompt.id === -1) {
-                      onOpen();
-                      return;
-                    }
+                  // 万能模板
+                  if (prompt.id === -1) {
+                    onOpen();
+                    return;
+                  }
 
-                    const promptContent = prompt.prompt;
-                    const slots = promptContent.match(/\[(.*?)\]/g) as string[];
-                    if (slots && Array.isArray(slots) && slots.length) {
-                      const slotFields = slots.reduce<Record<string, string>>(
-                        (res, cur) => {
-                          res[cur] = '';
-                          return res;
-                        },
-                        {},
-                      );
-                      setSlotFields(slotFields);
-                      onOpen();
-                    } else {
-                      setSlotFields({});
+                  const promptContent = prompt.prompt;
+                  const slots = promptContent.match(/\[(.*?)\]/g) as string[];
+                  if (slots && Array.isArray(slots) && slots.length) {
+                    const slotFields = slots.reduce<Record<string, string>>(
+                      (res, cur) => {
+                        res[cur] = '';
+                        return res;
+                      },
+                      {},
+                    );
+                    setSlotFields(slotFields);
+                    onOpen();
+                  } else {
+                    setSlotFields({});
 
-                      window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
+                    window.localStorage.setItem(SLOT_FIELDS, JSON.stringify({}));
 
-                      createNewSession({
-                        promptId: prompt.id + '',
-                        promptRule: prompt.act,
-                      });
-                      updateCurrentSession((session) => {
-                        session.slotFields = {};
-                      });
-                      router.push('/chat');
-                    }
-                  }}
-                >
-                  <div className={styles.overlay}>
-                    <span className={styles.text}>去使用</span>
+                    createNewSession({
+                      promptId: prompt.id + '',
+                      promptRule: prompt.act,
+                    });
+                    updateCurrentSession((session) => {
+                      session.slotFields = {};
+                    });
+                    router.push('/chat');
+                  }
+                }}
+              >
+                <div className={styles.overlay}>
+                  <span className={styles.text}>去使用</span>
+                </div>
+                <div className={styles.cardBody}>
+                  <div className={styles.promptHeader}>
+                    {/* <LogoLoading /> */}
+                    <h4 className={styles.promptTitle}>
+                      {prompt.act !== prompt.title ? (
+                        <>
+                          <span style={{ fontSize: '1.1rem' }}>{prompt.act}</span>
+                          <Text fontSize="0.5rem" color={'gray.500'}>
+                            {prompt.title}
+                          </Text>
+                        </>
+                      ) : (
+                        prompt.title
+                      )}
+                    </h4>
                   </div>
-                  <div className={styles.cardBody}>
-                    <div className={styles.promptHeader}>
-                      {/* <LogoLoading /> */}
-                      <h4 className={styles.promptTitle}>
-                        {prompt.act !== prompt.title ? (
-                          <>
-                            <span style={{ fontSize: '1.1rem' }}>{prompt.act}</span>
-                            <Text fontSize="0.5rem" color={'gray.500'}>
-                              {prompt.title}
-                            </Text>
-                          </>
-                        ) : (
-                          prompt.title
-                        )}
-                      </h4>
-                    </div>
-                  </div>
-                </li>
-              ))}
+                </div>
+              </li>
+            ))}
           </ul>
         </>
         // @ts-ignore

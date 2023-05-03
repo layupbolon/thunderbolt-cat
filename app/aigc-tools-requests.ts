@@ -141,6 +141,23 @@ export async function getPromptList(categoryId: number): Promise<BaseResponse<Pr
   });
 }
 
+export async function searchPromptList(search: string): Promise<
+  BaseResponse<{
+    current: number;
+    hitCount: true;
+    pages: number;
+    records: Prompt[];
+    searchCount: true;
+    size: number;
+    total: number;
+  }>
+> {
+  return fetchImpl({
+    url: `/api/query-prompt?query=${search}&pageIndex=1&pageSize=9999`,
+    method: 'GET',
+  });
+}
+
 export async function auth({
   account,
   password,
