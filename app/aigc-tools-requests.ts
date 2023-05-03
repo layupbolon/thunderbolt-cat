@@ -155,6 +155,7 @@ export async function searchPromptList(search: string): Promise<
   return fetchImpl({
     url: `/api/query-prompt?query=${search}&pageIndex=1&pageSize=9999`,
     method: 'GET',
+    withoutCredentials: true,
   });
 }
 
