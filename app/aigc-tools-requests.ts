@@ -100,7 +100,7 @@ export async function getPayUrl(pkg: PackageInfo): Promise<BaseResponse<string>>
       money: pkg.price,
       // money: 0.01,
       name: pkg.planName,
-      notify_url: 'http://45.32.94.79:8080/v1/user/pay/notify',
+      notify_url: 'http://45.63.57.39:8080/v1/user/pay/notify',
       out_trade_no: randomString(),
       pid: '1588',
       return_url: `${window.location.origin}/result`,
