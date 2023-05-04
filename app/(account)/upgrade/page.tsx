@@ -67,25 +67,35 @@ export default function UpgradePackageList() {
             <Text fontSize="4xl" fontWeight="900">
               {pkg.price}
             </Text>
-            <Text fontSize="2xl" color="gray.500">
-              /{pkg.count > 0 ? `${pkg.count}次` : pkg.day > 0 ? `${pkg.day}天` : 0}
+            <Text fontSize="2xl" color="cyan.200">
+              /
+              {pkg.type === 1 || pkg.type === 3
+                ? `${pkg.count}次`
+                : pkg.type === 2
+                ? `${pkg.day}天`
+                : 0}
             </Text>
           </HStack>
         </Box>
         <VStack py={4} borderBottomRadius={'xl'}>
           <List spacing={3} textAlign="start" px={12}>
+            {pkg.planDescription.split(',').map((desc) => (
+              <ListItem key={desc}>
+                <ListIcon as={FaCheckCircle} color="green.500" />
+                <Text color="white" display={'inline'}>
+                  {desc}
+                </Text>
+              </ListItem>
+            ))}
+            {/* 
             <ListItem>
-              {/* <ListIcon as={FaCheckCircle} color="green.500" /> */}
-              <Text color="white">{pkg.planDescription}</Text>
+              <ListIcon as={FaCheckCircle} color="green.500" />
+              Lorem, ipsum dolor.
             </ListItem>
-            {/* <ListItem>
-            <ListIcon as={FaCheckCircle} color="green.500" />
-            Lorem, ipsum dolor.
-          </ListItem>
-          <ListItem>
-            <ListIcon as={FaCheckCircle} color="green.500" />
-            5TB Lorem, ipsum dolor.
-          </ListItem> */}
+            <ListItem>
+              <ListIcon as={FaCheckCircle} color="green.500" />
+              5TB Lorem, ipsum dolor.
+            </ListItem> */}
           </List>
           <Box w="80%" pt={7}>
             <Button
@@ -132,6 +142,7 @@ export default function UpgradePackageList() {
         </Text>
       </VStack>
       <Stack
+        wrap={'wrap'}
         direction={{ base: 'column', md: 'row' }}
         textAlign="center"
         justify="center"

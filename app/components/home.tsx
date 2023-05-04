@@ -8,7 +8,6 @@ import { IconButton } from './button';
 import { Chat } from './chat';
 import { ErrorBoundary } from './error';
 import styles from './home.module.scss';
-import AddIcon from '../icons/add.svg';
 import LogoLoading from '../icons/logo_loading.svg';
 import CloseIcon from '../icons/close.svg';
 import LoadingIcon from '../icons/three-dots.svg';
@@ -61,11 +60,6 @@ const useHasHydrated = () => {
 };
 
 function _Home() {
-  const [createNewSession, currentIndex, removeSession] = useChatStore((state) => [
-    state.newSession,
-    state.currentSessionIndex,
-    state.removeSession,
-  ]);
   const chatStore = useChatStore();
   const loading = !useHasHydrated();
   const [showSideBar, setShowSideBar] = useState(true);
@@ -100,28 +94,6 @@ function _Home() {
                   }}
                 />
               </div>
-              {/* <div className={styles["sidebar-action"]}>
-              <IconButton
-                icon={<SettingsIcon />}
-                onClick={() => {
-                  setOpenSettings(true);
-                  setShowSideBar(false);
-                }}
-                shadow
-              />
-            </div> */}
-
-              {/* <div className={styles['sidebar-action']}>
-                <IconButton
-                  icon={<AddIcon />}
-                  text={'新的聊天'}
-                  onClick={() => {
-                    createNewSession();
-                    setShowSideBar(false);
-                  }}
-                  shadow
-                />
-              </div> */}
             </div>
           </div>
         </div>

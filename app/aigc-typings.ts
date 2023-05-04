@@ -85,6 +85,9 @@ export interface PackageInfo {
   planName: string;
   planDescription: string;
   price: number;
+  /**
+   * 1: gpt3 次数包；2：包月；3：gpt4 次数包
+   */
   type: number;
   count: number;
   day: number;

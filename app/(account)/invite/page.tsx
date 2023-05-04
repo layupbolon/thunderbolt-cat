@@ -1,10 +1,9 @@
 'use client';
 
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   Box,
   Stack,
-  HStack,
   Heading,
   Text,
   VStack,
@@ -15,21 +14,12 @@ import {
   InputGroup,
   InputRightAddon,
   List,
-  ListIcon,
   ListItem,
 } from '@chakra-ui/react';
-import { FaCheckCircle } from 'react-icons/fa';
 import { Header } from '../../components/header/Header';
-import {
-  getInviteUrl,
-  getPackageList,
-  getPayUrl,
-  getUserByAccount,
-} from '../../aigc-tools-requests';
-import { PackageInfo } from '@/app/aigc-typings';
-import { PAY_PLAN_ID, USER_INFO_STORAGE_KEY } from '@/app/constant';
+import { getInviteUrl, getUserByAccount } from '../../aigc-tools-requests';
 import { copyToClipboard } from '@/app/utils';
-import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
+import { CopyIcon } from '@chakra-ui/icons';
 
 function PriceWrapper({ children }: { children: ReactNode }) {
   return (
@@ -113,11 +103,11 @@ export default function Invite() {
               </Text>
               <List spacing={1}>
                 <ListItem>
-                  1. 次数用户每邀请一个新用户，且新用户开通 vip
+                  1. 次数用户每邀请一个新用户，且新用户升级会员
                   （包月，或者购买次数包），将增加100次
                 </ListItem>
                 <ListItem>
-                  2. 包月用户每邀请一个新用户，且新用户开通 vip
+                  2. 包月用户每邀请一个新用户，且新用户升级会员
                   （包月，或者购买次数包），使用有效期将增加5天
                 </ListItem>
               </List>
