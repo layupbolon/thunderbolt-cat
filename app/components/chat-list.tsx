@@ -7,13 +7,13 @@ import {
   OnDragEndResponder,
 } from '@hello-pangea/dnd';
 
-import { useChatStore } from '../store';
-import { isMobileScreen } from '../utils';
+import { GPTModel, useChatStore } from '../store';
 
 export function ChatItem(props: {
   onClick?: () => void;
   onDelete?: () => void;
   title: string;
+  model: GPTModel;
   count: number;
   time: string;
   selected: boolean;
@@ -32,6 +32,9 @@ export function ChatItem(props: {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
+          {props.model === GPTModel.GPT4 && (
+            <div className={styles['chat-model']}>{props.model}</div>
+          )}
           <div className={styles['chat-item-title']}>{props.title}</div>
           <div className={styles['chat-item-info']}>
             <div className={styles['chat-item-count']}>{`${props.count} 条对话`}</div>
@@ -92,6 +95,7 @@ export function ChatList() {
             {sessions.map((item, i) => (
               <ChatItem
                 title={item.topic}
+                model={item.gptModel}
                 time={item.lastUpdate}
                 count={item.messages.length}
                 key={item.id}

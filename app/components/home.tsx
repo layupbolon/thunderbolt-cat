@@ -110,17 +110,8 @@ function _Home() {
                 shadow
               />
             </div> */}
-              {/* <Button
-              color="#ddd"
-              leftIcon={<AddIcon />}
-              onClick={() => {
-                createNewSession();
-                setShowSideBar(false);
-              }}
-            >
-              {Locale.Home.NewChat}
-            </Button> */}
-              <div className={styles['sidebar-action']}>
+
+              {/* <div className={styles['sidebar-action']}>
                 <IconButton
                   icon={<AddIcon />}
                   text={'新的聊天'}
@@ -130,7 +121,7 @@ function _Home() {
                   }}
                   shadow
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

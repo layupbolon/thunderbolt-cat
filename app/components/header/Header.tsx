@@ -189,19 +189,35 @@ export const Header = (props: Props) => {
                       </Text>
                     </Stack>
 
-                    <Stack direction={'row'} justify={'center'} spacing={6}>
+                    <Stack direction={'column'} align={'center'} spacing={6}>
                       {(user?.vipType === 0 || user?.vipType === 1) && (
                         <Stack spacing={0} align={'center'} direction={'row'}>
                           <Text fontSize={'sm'}>
-                            剩余
-                            {Math.max(
-                              (user?.visitLimit ?? 0) - (user?.visitCount ?? 0),
-                              0,
-                            )}
+                            GPT 3.5 使用次数剩余
+                            <span
+                              style={{ color: 'rgb(29, 147, 171)', fontWeight: '800' }}
+                            >
+                              {Math.max(
+                                (user?.visitLimit ?? 0) - (user?.visitCount ?? 0),
+                                0,
+                              )}
+                            </span>
                             次
                           </Text>
                         </Stack>
                       )}
+                      <Stack spacing={0} align={'center'} direction={'row'}>
+                        <Text fontSize={'sm'}>
+                          GPT 4 使用次数剩余
+                          <span style={{ color: 'rgb(29, 147, 171)', fontWeight: '800' }}>
+                            {Math.max(
+                              (user?.visit4Limit ?? 0) - (user?.visit4Count ?? 0),
+                              0,
+                            )}
+                          </span>
+                          次
+                        </Text>
+                      </Stack>
                       {user?.vipType === 2 &&
                         user.validateDate &&
                         user.validateDate.length && (

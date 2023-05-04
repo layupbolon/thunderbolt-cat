@@ -53,7 +53,6 @@ export interface ChatConfig {
   disablePromptHint: boolean;
 
   modelConfig: {
-    model: string;
     temperature: number;
     max_tokens: number;
     presence_penalty: number;
@@ -136,7 +135,6 @@ const DEFAULT_CONFIG: ChatConfig = {
   disablePromptHint: false,
 
   modelConfig: {
-    model: 'gpt-3.5-turbo',
     temperature: 1,
     max_tokens: 2000,
     presence_penalty: 0,
@@ -147,6 +145,11 @@ export interface ChatStat {
   tokenCount: number;
   wordCount: number;
   charCount: number;
+}
+
+export const enum GPTModel {
+  GPT3_5 = 'GPT3.5',
+  GPT4 = 'GPT4',
 }
 
 export interface ChatSession {
@@ -165,6 +168,7 @@ export interface ChatSession {
    * 此 session 是否第一次 chat；1代表是；0代表否
    */
   firstCall: number;
+  gptModel: GPTModel;
 }
 
 const DEFAULT_TOPIC = '新的聊天';
@@ -195,6 +199,7 @@ function createEmptySession(selectedPrompt?: {
     lastSummarizeIndex: 0,
     promptId: selectedPrompt?.promptId,
     firstCall: 1,
+    gptModel: GPTModel.GPT3_5,
   };
 }
 
@@ -400,6 +405,7 @@ export const useChatStore = create<ChatStore>()(
         const session = get().currentSession();
 
         requestChatStream(sendMessages, {
+          gptModal: session.gptModel,
           promptId: session.promptId,
           promptParams: session.slotFields,
           firstCall: session.firstCall,
@@ -555,6 +561,7 @@ export const useChatStore = create<ChatStore>()(
               date: '',
             }),
             {
+              gptModal: session.gptModel,
               promptId: session.promptId,
               promptParams: session.slotFields,
               firstCall: 0,

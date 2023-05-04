@@ -25,9 +25,34 @@ export interface UserInfo {
   senderAccount: string;
   validateDate: number[];
   state: number;
+  /**
+   * GPT3 已使用次数
+   */
   visitCount: number;
+  /**
+   * GPT3 使用次数上限
+   */
   visitLimit: number;
+  /**
+   * 0: 非会员；1：次数会员；2：包月会员
+   */
   vipType: number;
+  /**
+   * GPT4 已使用次数
+   */
+  visit4Count: number;
+  /**
+   * GPT4 使用次数上限
+   */
+  visit4Limit: number;
+  /**
+   * AI绘图已使用次数
+   */
+  imageCount: number;
+  /**
+   * AI绘图使用次数上限
+   */
+  imageLimit: number;
 }
 
 export interface LoginResult {

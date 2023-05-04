@@ -1,6 +1,6 @@
 import type { ChatRequest, ChatResponse } from './api/openai/typing';
 import { TOKEN_STORAGE_KEY } from './constant';
-import { Message, ModelConfig, useAccessStore, useChatStore } from './store';
+import { GPTModel, Message, ModelConfig, useAccessStore, useChatStore } from './store';
 
 const TIME_OUT_MS = 60000;
 
@@ -26,11 +26,11 @@ const makeRequestParam = (
 
   const modelConfig = { ...useChatStore.getState().config.modelConfig };
 
-  // @yidadaa: wont send max_tokens, because it is nonsense for Muggles
   // @ts-expect-error
   delete modelConfig.max_tokens;
 
   return {
+    model: '', // 后端会指定
     messages: sendMessages,
     stream: options?.stream,
     ...modelConfig,
@@ -89,6 +89,7 @@ export async function requestChatStream(
     promptId?: string;
     promptParams?: Record<string, string>;
     firstCall: number;
+    gptModal: GPTModel;
   },
 ) {
   const req = makeRequestParam(messages, {
@@ -113,7 +114,10 @@ export async function requestChatStream(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        path: 'v1/chat/completions/stream',
+        path:
+          options?.gptModal === GPTModel.GPT4
+            ? 'v1/chat/completions/stream4'
+            : 'v1/chat/completions/stream',
         token: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
       },
       body: JSON.stringify(req),

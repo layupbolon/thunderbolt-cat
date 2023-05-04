@@ -23,8 +23,11 @@ import {
   Spinner,
   useDisclosure,
   Text,
+  RadioGroup,
+  Stack,
+  Radio,
 } from '@chakra-ui/react';
-import { useChatStore } from '../../store';
+import { GPTModel, useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
 import { SLOT_FIELDS } from '@/app/constant';
 import { useDebouncedCallback } from 'use-debounce';
@@ -43,6 +46,7 @@ export const Prompts: React.FC = () => {
   const [currentPrompt, setCurrentPrompt] = useState<Prompt>();
   const [searchPrompts, setSearchPrompts] = useState<Prompt[]>([]);
   const [slotFields, setSlotFields] = useState<Record<string, string>>({});
+  const [gptModel, setGPTModel] = useState<GPTModel>(GPTModel.GPT3_5);
   const [createNewSession, updateCurrentSession] = useChatStore((state) => [
     state.newSession,
     state.updateCurrentSession,
@@ -263,7 +267,9 @@ export const Prompts: React.FC = () => {
               </Text>
             )}
             {currentPrompt?.id === -1 ? (
-              <span>这是霹雳猫的基础模型，拥有全部的功能，可以完全自定义环境。</span>
+              <Text size={'sm'} color={'rgb(187, 187, 187)'} mb="1.5rem">
+                这是霹雳猫的基础模型，拥有全部的功能，可以完全自定义环境。
+              </Text>
             ) : (
               <>
                 {Object.keys(slotFields).map((key, index) => {
@@ -285,6 +291,18 @@ export const Prompts: React.FC = () => {
                 })}
               </>
             )}
+            <FormControl>
+              <FormLabel>GPT 模型</FormLabel>
+              <RadioGroup
+                onChange={(value) => setGPTModel(value as GPTModel)}
+                value={gptModel}
+              >
+                <Stack direction="row">
+                  <Radio value={GPTModel.GPT3_5}>GPT 3.5</Radio>
+                  <Radio value={GPTModel.GPT4}>GPT 4</Radio>
+                </Stack>
+              </RadioGroup>
+            </FormControl>
           </ModalBody>
 
           <ModalFooter>
@@ -296,6 +314,7 @@ export const Prompts: React.FC = () => {
                   createNewSession();
                   updateCurrentSession((session) => {
                     session.topic = '万能';
+                    session.gptModel = gptModel;
                   });
                   router.push('/chat');
                   onClose();
@@ -307,6 +326,7 @@ export const Prompts: React.FC = () => {
                 });
                 updateCurrentSession((session) => {
                   session.slotFields = slotFields;
+                  session.gptModel = gptModel;
                 });
                 router.push('/chat');
                 onClose();
