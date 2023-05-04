@@ -396,7 +396,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
         </List>
 
         <List>
-          <SettingItem title={'模型 (model)'}>
+          {/* <SettingItem title={'模型 (model)'}>
             <select
               value={config.modelConfig.model}
               onChange={(e) => {
@@ -414,7 +414,7 @@ export function Settings(props: { closeSettings: () => void; user?: UserInfo }) 
                 </option>
               ))}
             </select>
-          </SettingItem>
+          </SettingItem> */}
           <SettingItem
             title={'随机性 (temperature)'}
             subTitle={'值越大，回复越随机，大于 1 的值可能会导致乱码'}
