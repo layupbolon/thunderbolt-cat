@@ -222,17 +222,31 @@ export const Header = (props: Props) => {
                         user.validateDate &&
                         user.validateDate.length && (
                           <Stack spacing={0} align={'center'}>
-                            <Text fontWeight={600}>到期时间</Text>
-                            <Text fontSize={'lg'} color={'rgb(29, 147, 171)'}>
-                              {new Date(
-                                user.validateDate[0],
-                                user.validateDate[1] - 1,
-                                user.validateDate[2],
-                                user.validateDate[3],
-                                user.validateDate[4],
-                                user.validateDate[5],
-                              ).toLocaleDateString()}
-                            </Text>
+                            {new Date().getTime() >
+                            new Date(
+                              user.validateDate[0],
+                              user.validateDate[1] - 1,
+                              user.validateDate[2],
+                              user.validateDate[3],
+                              user.validateDate[4],
+                              user.validateDate[5],
+                            ).getTime() ? (
+                              <Text fontWeight={600}>已过期</Text>
+                            ) : (
+                              <>
+                                <Text fontWeight={600}>到期时间</Text>
+                                <Text fontSize={'lg'} color={'rgb(29, 147, 171)'}>
+                                  {new Date(
+                                    user.validateDate[0],
+                                    user.validateDate[1] - 1,
+                                    user.validateDate[2],
+                                    user.validateDate[3],
+                                    user.validateDate[4],
+                                    user.validateDate[5],
+                                  ).toLocaleDateString()}
+                                </Text>
+                              </>
+                            )}
                           </Stack>
                         )}
                     </Stack>
