@@ -223,7 +223,7 @@ export const Header = (props: Props) => {
                         user.validateDate.length && (
                           <Stack spacing={0} align={'center'}>
                             <Text fontWeight={600}>到期时间</Text>
-                            <Text fontSize={'sm'} color={'gray.500'}>
+                            <Text fontSize={'lg'} color={'rgb(29, 147, 171)'}>
                               {new Date(
                                 user.validateDate[0],
                                 user.validateDate[1] - 1,

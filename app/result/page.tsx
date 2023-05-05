@@ -8,7 +8,7 @@ import { payNotify } from '../aigc-tools-requests';
 import { PAY_PLAN_ID, USER_INFO_STORAGE_KEY } from '../constant';
 
 export default function PayResult() {
-  const [success, setSuccess] = useState<boolean>(true);
+  const [success, setSuccess] = useState<boolean>(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,13 +31,10 @@ export default function PayResult() {
       plan_id,
       account,
     }).then((res) => {
-      console.log('res: ', res);
-      //TODO
-
       setSuccess(true);
       setTimeout(() => {
         router.replace('/');
-      }, 5000);
+      }, 3000);
     });
   }, [router, searchParams]);
 
@@ -47,7 +44,7 @@ export default function PayResult() {
         {success ? (
           <>
             <CheckCircleIcon boxSize={'50px'} color={'green.500'} />
-            <Heading as="h2" size="xl" mt={6} mb={2}>
+            <Heading as="h2" size="xl" mt={6} mb={2} color="white">
               充值成功，将自动跳转...
             </Heading>
           </>
@@ -60,7 +57,7 @@ export default function PayResult() {
               color="blue.500"
               size="xl"
             />
-            <Heading as="h2" size="xl" mt={6} mb={2}>
+            <Heading as="h2" size="xl" mt={6} mb={2} color="white">
               正在检查充值结果...
             </Heading>
             <Text color={'gray.500'}>请勿关闭此页面，否则可能导致充值失败</Text>

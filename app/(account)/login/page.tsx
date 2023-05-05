@@ -78,7 +78,7 @@ export default function SimpleCard() {
         >
           <Stack spacing={4}>
             <FormControl id="email">
-              <FormLabel>邮箱</FormLabel>
+              <FormLabel>手机号/邮箱</FormLabel>
               <Input
                 autoFocus
                 type="text"
