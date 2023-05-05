@@ -134,7 +134,7 @@ export default function SignupCard() {
         >
           <Stack spacing={4}>
             <FormControl id="account" isRequired>
-              <FormLabel>手机号/邮箱</FormLabel>
+              <FormLabel>邮箱</FormLabel>
               <Input
                 type="text"
                 value={account}

@@ -16,6 +16,8 @@ export const Landing = () => {
     const invite = searchParams.get('invite');
     if (invite) {
       window.localStorage.setItem(INVITE_CODE, invite);
+    } else {
+      window.localStorage.removeItem(INVITE_CODE);
     }
   }, [searchParams]);
 
