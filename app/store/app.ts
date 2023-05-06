@@ -135,7 +135,7 @@ const DEFAULT_CONFIG: ChatConfig = {
   disablePromptHint: false,
 
   modelConfig: {
-    temperature: 1,
+    temperature: 0.3,
     max_tokens: 2000,
     presence_penalty: 0,
   },
