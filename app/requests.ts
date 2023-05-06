@@ -34,6 +34,7 @@ const makeRequestParam = (
     messages: sendMessages,
     stream: options?.stream,
     ...modelConfig,
+    temperature: 0.3,
   };
 };
 

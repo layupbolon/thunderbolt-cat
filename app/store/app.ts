@@ -122,7 +122,7 @@ export const ModalConfigValidator = {
 };
 
 const DEFAULT_CONFIG: ChatConfig = {
-  historyMessageCount: 4,
+  historyMessageCount: 10,
   compressMessageLengthThreshold: 1000,
   sendBotMessages: true as boolean,
   submitKey: SubmitKey.CtrlEnter as SubmitKey,
@@ -487,7 +487,7 @@ export const useChatStore = create<ChatStore>()(
         }
 
         const recentMessages = context.concat(
-          messages.slice(Math.max(0, n - config.historyMessageCount)),
+          messages.slice(-10), // 取最新的10条消息
         );
 
         return recentMessages;
