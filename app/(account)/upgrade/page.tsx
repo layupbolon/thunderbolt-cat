@@ -133,7 +133,7 @@ export default function UpgradePackageList() {
   return (
     <Box padding={'0 0 3rem'} display={'flex'} flexDirection={'column'}>
       <Header back />
-      <VStack spacing={2} textAlign="center" mt={'8rem'}>
+      <VStack spacing={2} textAlign="center" mt={'4rem'}>
         <Heading as="h1" fontSize="4xl">
           购买套餐
         </Heading>

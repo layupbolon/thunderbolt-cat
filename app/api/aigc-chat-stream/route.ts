@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
     }
 
     const contentType = res.headers.get('Content-Type') ?? '';
-    console.log('contentType: ', contentType);
     if (!contentType.includes('stream')) {
       const content = await (
         await res.text()

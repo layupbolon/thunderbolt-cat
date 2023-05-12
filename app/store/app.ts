@@ -487,7 +487,7 @@ export const useChatStore = create<ChatStore>()(
         }
 
         const recentMessages = context.concat(
-          messages.slice(-10), // 取最新的10条消息
+          messages.slice(-6), // 取最新的10条消息
         );
 
         return recentMessages;
@@ -533,7 +533,7 @@ export const useChatStore = create<ChatStore>()(
 
         const historyMsgLength = countMessages(toBeSummarizedMsgs);
 
-        if (historyMsgLength > get().config?.modelConfig?.max_tokens ?? 4000) {
+        if (historyMsgLength > get().config?.modelConfig?.max_tokens ?? 2048) {
           const n = toBeSummarizedMsgs.length;
           toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
             Math.max(0, n - config.historyMessageCount),

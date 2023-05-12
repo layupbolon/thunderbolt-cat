@@ -1,5 +1,7 @@
 import type {
   BaseResponse,
+  CheckInInfo,
+  CheckInRule,
   LoginResult,
   PackageInfo,
   Prompt,
@@ -224,5 +226,50 @@ export async function getUserByAccount(
       return res;
     }
     return Promise.reject(res);
+  });
+}
+
+export async function getCheckIn(
+  account = window.localStorage.getItem(USER_ACCOUNT),
+): Promise<BaseResponse<CheckInInfo>> {
+  return fetchImpl({
+    url: `/api/user-check-in/${account}`,
+    method: 'GET',
+  });
+}
+
+export async function getCheckInRule(): Promise<
+  BaseResponse<{
+    vip0: CheckInRule;
+    vip1: CheckInRule;
+    vip2: CheckInRule;
+  }>
+> {
+  return fetchImpl({
+    url: `/api/user-check-in/rule`,
+    method: 'GET',
+  });
+}
+
+export async function CheckIn(
+  account = window.localStorage.getItem(USER_ACCOUNT),
+): Promise<BaseResponse<any>> {
+  return fetchImpl({
+    url: `/api/user-check-in/${account}`,
+    method: 'POST',
+  });
+}
+
+export async function receivePoints(
+  rewardType: string,
+  account = window.localStorage.getItem(USER_ACCOUNT),
+): Promise<BaseResponse<any>> {
+  return fetchImpl({
+    url: `/api/receive-points`,
+    method: 'POST',
+    body: {
+      account,
+      rewardType,
+    },
   });
 }

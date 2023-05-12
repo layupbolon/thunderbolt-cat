@@ -94,3 +94,36 @@ export interface PackageInfo {
   createTime: number[];
   updateTime: number[];
 }
+
+export interface CheckInInfo {
+  id: number;
+  account: string;
+  createTime: string;
+  updateTime: string;
+  /**
+   * 星期一是否已签到
+   */
+  monday: boolean;
+  tuesday: boolean;
+  wednesday: boolean;
+  thursday: boolean;
+  friday: boolean;
+  saturday: boolean;
+  sunday: boolean;
+  /**
+   * 是否连续 7 天
+   */
+  sevenDay: number;
+  fourteenDay: number;
+  twentyOne: number;
+  twentyEight: number;
+}
+
+export interface CheckInRule {
+  twentyOneDay: number;
+  sevenDay: number;
+  twentyEightDay: number;
+  everyDay: number;
+  fourteenDay: number;
+  continueSeven: number;
+}

@@ -1,15 +1,13 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Stack,
   Heading,
   Text,
   VStack,
-  useColorModeValue,
   Image,
-  useToast,
   Input,
   InputGroup,
   InputRightAddon,
@@ -21,25 +19,9 @@ import { getInviteUrl, getUserByAccount } from '../../aigc-tools-requests';
 import { copyToClipboard } from '@/app/utils';
 import { CopyIcon } from '@chakra-ui/icons';
 
-function PriceWrapper({ children }: { children: ReactNode }) {
-  return (
-    <Box
-      mb={4}
-      shadow="base"
-      borderWidth="1px"
-      alignSelf={{ base: 'center', lg: 'flex-start' }}
-      borderColor={useColorModeValue('gray.200', 'gray.500')}
-      borderRadius={'xl'}
-    >
-      {children}
-    </Box>
-  );
-}
-
 export default function Invite() {
   const [inviteUrl, setInviteUrl] = useState<string>();
   const [inviteQrCode, setInviteQrCode] = useState<string>();
-  const toast = useToast();
 
   useEffect(() => {
     getUserByAccount()
@@ -57,7 +39,7 @@ export default function Invite() {
   return (
     <Box padding={'0 0 3rem'} display={'flex'} flexDirection={'column'}>
       <Header back fixed />
-      <VStack spacing={2} textAlign="center" mt="10rem">
+      <VStack spacing={2} textAlign="center" mt="6rem">
         <Heading as="h1" fontSize="4xl" mb={'2rem'} color="white">
           邀请好友
         </Heading>

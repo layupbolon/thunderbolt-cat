@@ -23,6 +23,14 @@ const nextConfig = {
         destination: `${url}/v1/user/:path*`,
       },
       {
+        source: '/api/user-check-in/:path*',
+        destination: `${url}/v1/user-check-in/:path*`,
+      },
+      {
+        source: '/api/receive-points',
+        destination: `${url}/v1/receive-points`,
+      },
+      {
         source: '/api/pay/notify',
         destination: `${url}/v1/user/pay/notify`,
       },

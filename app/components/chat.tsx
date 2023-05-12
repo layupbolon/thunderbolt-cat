@@ -689,8 +689,9 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
         <div className={styles['chat-input-panel-inner']}>
           <textarea
             ref={inputRef}
+            maxLength={2000}
             className={styles['chat-input']}
-            placeholder={'Enter 发送，Shift + Enter 换行'}
+            placeholder={'Enter 发送，Shift + Enter 换行。最多输入2000字。'}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}

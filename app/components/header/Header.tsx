@@ -26,7 +26,7 @@ import {
   keyframes,
 } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
-import { getUserByAccount } from '../../aigc-tools-requests';
+import { getCheckIn, getUserByAccount } from '../../aigc-tools-requests';
 import { UserInfo } from '@/app/aigc-typings';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 
@@ -195,7 +195,10 @@ export const Header = (props: Props) => {
                           <Text fontSize={'sm'}>
                             GPT 3.5 使用次数剩余
                             <span
-                              style={{ color: 'rgb(29, 147, 171)', fontWeight: '800' }}
+                              style={{
+                                color: 'rgb(29, 147, 171)',
+                                fontWeight: '800',
+                              }}
                             >
                               {Math.max(
                                 (user?.visitLimit ?? 0) - (user?.visitCount ?? 0),
@@ -209,7 +212,12 @@ export const Header = (props: Props) => {
                       <Stack spacing={0} align={'center'} direction={'row'}>
                         <Text fontSize={'sm'}>
                           GPT 4 使用次数剩余
-                          <span style={{ color: 'rgb(29, 147, 171)', fontWeight: '800' }}>
+                          <span
+                            style={{
+                              color: 'rgb(29, 147, 171)',
+                              fontWeight: '800',
+                            }}
+                          >
                             {Math.max(
                               (user?.visit4Limit ?? 0) - (user?.visit4Count ?? 0),
                               0,
@@ -251,9 +259,27 @@ export const Header = (props: Props) => {
                         )}
                     </Stack>
 
+                    {/* <Button
+                      w={'full'}
+                      colorScheme="teal"
+                      variant="outline"
+                      rounded={'md'}
+                      mt={8}
+                      _hover={{
+                        transform: 'translateY(-2px)',
+                        boxShadow: 'lg',
+                      }}
+                      onClick={() => {
+                        router.push('/checkIn');
+                        setIsOpen(false);
+                      }}
+                    >
+                      签 到
+                    </Button> */}
+
                     <Button
                       w={'full'}
-                      mt={8}
+                      mt={5}
                       bg={'#7928CA'}
                       color={'white'}
                       bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
