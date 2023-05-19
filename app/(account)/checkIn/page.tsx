@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { Header } from '../../components/header/Header';
 import {
-  CheckIn,
+  checkIn,
   getCheckIn,
   getCheckInRule,
   getUserByAccount,
@@ -25,115 +25,41 @@ import Gou from '@/app/icons/gou.svg';
 import NotGou from '@/app/icons/notgou.svg';
 import { CheckInInfo, CheckInRule } from '@/app/aigc-typings';
 
-interface OneDayCheckInProps {
-  checked: boolean;
-}
-
 interface CheckInItermProps {
   checkInInfo: CheckInInfo;
   checkInRule: CheckInRule;
 }
 
-const MondayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
+const DaylyCheckIn: React.FC<{
+  checked: boolean;
+  title: string;
+}> = (props) => (
   <VStack>
-    <Text color="white">周一</Text>
+    <Text color="white">{props.title}</Text>
     {props.checked ? <Gou /> : <NotGou />}
   </VStack>
 );
-const TuesdayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
-  <VStack>
-    <Text color="white">周二</Text>
-    {props.checked ? <Gou /> : <NotGou />}
-  </VStack>
-);
-const WednesdayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
-  <VStack>
-    <Text color="white">周三</Text>
-    {props.checked ? <Gou /> : <NotGou />}
-  </VStack>
-);
-const ThursdayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
-  <VStack>
-    <Text color="white">周四</Text>
-    {props.checked ? <Gou /> : <NotGou />}
-  </VStack>
-);
-const FridayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
-  <VStack>
-    <Text color="white">周五</Text>
-    {props.checked ? <Gou /> : <NotGou />}
-  </VStack>
-);
-const SaturdayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
-  <VStack>
-    <Text color="white">周六</Text>
-    {props.checked ? <Gou /> : <NotGou />}
-  </VStack>
-);
-const SundayCheckIn: React.FC<OneDayCheckInProps> = (props) => (
-  <VStack>
-    <Text color="white">周日</Text>
-    {props.checked ? <Gou /> : <NotGou />}
-  </VStack>
+
+const WeeklyCheckIn: React.FC<CheckInItermProps> = (props) => (
+  <>
+    <DaylyCheckIn checked={props.checkInInfo.monday} title="周一" />
+    <DaylyCheckIn checked={props.checkInInfo.tuesday} title="周二" />
+    <DaylyCheckIn checked={props.checkInInfo.wednesday} title="周三" />
+    <DaylyCheckIn checked={props.checkInInfo.thursday} title="周四" />
+    <DaylyCheckIn checked={props.checkInInfo.friday} title="周五" />
+    <DaylyCheckIn checked={props.checkInInfo.saturday} title="周六" />
+    <DaylyCheckIn checked={props.checkInInfo.sunday} title="周日" />
+  </>
 );
 
 const SevenDayCheckIn: React.FC<CheckInItermProps> = (props) => {
   const toast = useToast();
   return (
     <HStack border="1px solid #dddddd" padding="1rem" borderRadius=".5rem" mb="1rem">
-      <MondayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.monday)
-        }
-      />
-      <TuesdayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.tuesday)
-        }
-      />
-      <WednesdayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.wednesday)
-        }
-      />
-      <ThursdayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.thursday)
-        }
-      />
-      <FridayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.friday)
-        }
-      />
-      <SaturdayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.saturday)
-        }
-      />
-      <SundayCheckIn
-        checked={
-          props.checkInInfo.sevenDay === 1 ||
-          (props.checkInInfo.sevenDay === 0 && props.checkInInfo.sunday)
-        }
-      />
-      <Text color="white">
-        累计签到
-        <span
-          style={{ color: 'rgb(29, 147, 171)', fontWeight: 'bold', fontSize: '1.5rem' }}
-        >
-          7
-        </span>
-        天
-      </Text>
+      <WeeklyCheckIn {...props} />
+
       <Button
-        isDisabled={!props.checkInInfo.sevenDay}
+        isDisabled={props.checkInInfo.sevenDay !== 7}
         colorScheme="yellow"
         onClick={() => {
           receivePoints('SEVEN_DAY')
@@ -155,7 +81,9 @@ const SevenDayCheckIn: React.FC<CheckInItermProps> = (props) => {
             });
         }}
       >
-        积分+{props.checkInRule.sevenDay}
+        {props.checkInInfo.sevenDay === 7
+          ? `积分+${props.checkInInfo.sevenDay}`
+          : `累计(${props.checkInInfo.sevenDay}/7)`}
       </Button>
     </HStack>
   );
@@ -164,76 +92,10 @@ const FourteenDayCheckIn: React.FC<CheckInItermProps> = (props) => {
   const toast = useToast();
   return (
     <HStack border="1px solid #dddddd" padding="1rem" borderRadius=".5rem" mb="1rem">
-      <MondayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.monday)
-        }
-      />
-      <TuesdayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.tuesday)
-        }
-      />
-      <WednesdayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.wednesday)
-        }
-      />
-      <ThursdayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.thursday)
-        }
-      />
-      <FridayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.friday)
-        }
-      />
-      <SaturdayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.saturday)
-        }
-      />
-      <SundayCheckIn
-        checked={
-          props.checkInInfo.fourteenDay === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 0 &&
-            props.checkInInfo.sunday)
-        }
-      />
-      <Text color="white">
-        累计签到
-        <span
-          style={{ color: 'rgb(29, 147, 171)', fontWeight: 'bold', fontSize: '1.5rem' }}
-        >
-          14
-        </span>
-        天
-      </Text>
+      <WeeklyCheckIn {...props} />
       <Button
         colorScheme="yellow"
-        isDisabled={
-          !(props.checkInInfo.sevenDay === 1 && props.checkInInfo.fourteenDay === 1)
-        }
+        isDisabled={props.checkInInfo.fourteenDay !== 14}
         onClick={() => {
           receivePoints('FOUR_TEEN_DAY')
             .then((res) => {
@@ -254,7 +116,9 @@ const FourteenDayCheckIn: React.FC<CheckInItermProps> = (props) => {
             });
         }}
       >
-        积分+{props.checkInRule.fourteenDay}
+        {props.checkInInfo.fourteenDay === 14
+          ? `积分+${props.checkInInfo.fourteenDay}`
+          : `累计(${props.checkInInfo.fourteenDay}/14)`}
       </Button>
     </HStack>
   );
@@ -263,87 +127,10 @@ const TwentyOneCheckIn: React.FC<CheckInItermProps> = (props) => {
   const toast = useToast();
   return (
     <HStack border="1px solid #dddddd" padding="1rem" borderRadius=".5rem" mb="1rem">
-      <MondayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.monday)
-        }
-      />
-      <TuesdayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.tuesday)
-        }
-      />
-      <WednesdayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.wednesday)
-        }
-      />
-      <ThursdayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.thursday)
-        }
-      />
-      <FridayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.friday)
-        }
-      />
-      <SaturdayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.saturday)
-        }
-      />
-      <SundayCheckIn
-        checked={
-          props.checkInInfo.twentyOne === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 0 &&
-            props.checkInInfo.sunday)
-        }
-      />
-      <Text color="white">
-        累计签到
-        <span
-          style={{ color: 'rgb(29, 147, 171)', fontWeight: 'bold', fontSize: '1.5rem' }}
-        >
-          21
-        </span>
-        天
-      </Text>
+      <WeeklyCheckIn {...props} />
       <Button
         colorScheme="yellow"
-        isDisabled={
-          !(
-            props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1
-          )
-        }
+        isDisabled={props.checkInInfo.twentyOne !== 21}
         onClick={() => {
           receivePoints('TWENTY_ONE')
             .then((res) => {
@@ -364,7 +151,9 @@ const TwentyOneCheckIn: React.FC<CheckInItermProps> = (props) => {
             });
         }}
       >
-        积分+{props.checkInRule.twentyOneDay}
+        {props.checkInInfo.twentyOne === 21
+          ? `积分+${props.checkInInfo.twentyOne}`
+          : `累计(${props.checkInInfo.twentyOne}/21)`}
       </Button>
     </HStack>
   );
@@ -373,95 +162,10 @@ const TwentyEightCheckIn: React.FC<CheckInItermProps> = (props) => {
   const toast = useToast();
   return (
     <HStack border="1px solid #dddddd" padding="1rem" borderRadius=".5rem" mb="1rem">
-      <MondayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.monday)
-        }
-      />
-      <TuesdayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.tuesday)
-        }
-      />
-      <WednesdayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.wednesday)
-        }
-      />
-      <ThursdayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.thursday)
-        }
-      />
-      <FridayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.friday)
-        }
-      />
-      <SaturdayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.saturday)
-        }
-      />
-      <SundayCheckIn
-        checked={
-          props.checkInInfo.twentyEight === 1 ||
-          (props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 0 &&
-            props.checkInInfo.sunday)
-        }
-      />
-      <Text color="white">
-        累计签到
-        <span
-          style={{ color: 'rgb(29, 147, 171)', fontWeight: 'bold', fontSize: '1.5rem' }}
-        >
-          28
-        </span>
-        天
-      </Text>
+      <WeeklyCheckIn {...props} />
       <Button
         colorScheme="yellow"
-        isDisabled={
-          !(
-            props.checkInInfo.sevenDay === 1 &&
-            props.checkInInfo.fourteenDay === 1 &&
-            props.checkInInfo.twentyOne === 1 &&
-            props.checkInInfo.twentyEight === 1
-          )
-        }
+        isDisabled={props.checkInInfo.twentyEight !== 28}
         onClick={() => {
           receivePoints('TWENTY_EIGHT')
             .then((res) => {
@@ -482,7 +186,9 @@ const TwentyEightCheckIn: React.FC<CheckInItermProps> = (props) => {
             });
         }}
       >
-        积分+{props.checkInRule.twentyEightDay}
+        {props.checkInInfo.twentyEight === 28
+          ? `积分+${props.checkInInfo.twentyEight}`
+          : `累计(${props.checkInInfo.twentyEight}/28)`}
       </Button>
     </HStack>
   );
@@ -538,14 +244,14 @@ export default function UpgradePackageList() {
           flexDirection="column"
           alignItems={'center'}
         >
-          连续签到可领取额外积分哦
+          累计签到可领取额外积分哦
           <Button
             size={'lg'}
             colorScheme={'teal'}
             w="8rem"
             mt="1.5rem"
             onClick={() => {
-              CheckIn()
+              checkIn()
                 .then((res) => {
                   toast({
                     title: res.message,
@@ -553,6 +259,9 @@ export default function UpgradePackageList() {
                     duration: 1000,
                     isClosable: true,
                   });
+                  if (+res.code === 1) {
+                    window.location.reload();
+                  }
                 })
                 .catch((err) => {
                   toast({
@@ -586,10 +295,18 @@ export default function UpgradePackageList() {
           py={10}
         >
           <Box>
-            <SevenDayCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
-            <FourteenDayCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
-            <TwentyOneCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
-            <TwentyEightCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
+            {checkInInfo.sevenDay > 0 && checkInInfo.sevenDay <= 7 && (
+              <SevenDayCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
+            )}
+            {checkInInfo.fourteenDay > 7 && checkInInfo.fourteenDay <= 14 && (
+              <FourteenDayCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
+            )}
+            {checkInInfo.twentyOne > 14 && checkInInfo.twentyOne <= 21 && (
+              <TwentyOneCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
+            )}
+            {checkInInfo.twentyEight > 21 && checkInInfo.twentyEight <= 28 && (
+              <TwentyEightCheckIn checkInInfo={checkInInfo} checkInRule={checkInRule} />
+            )}
           </Box>
         </Stack>
       ) : null}

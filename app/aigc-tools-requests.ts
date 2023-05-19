@@ -251,7 +251,7 @@ export async function getCheckInRule(): Promise<
   });
 }
 
-export async function CheckIn(
+export async function checkIn(
   account = window.localStorage.getItem(USER_ACCOUNT),
 ): Promise<BaseResponse<any>> {
   return fetchImpl({
@@ -271,5 +271,12 @@ export async function receivePoints(
       account,
       rewardType,
     },
+  });
+}
+
+export async function getPointsExchangeRule(): Promise<BaseResponse<any>> {
+  return fetchImpl({
+    url: `/api/points-exchange/rule`,
+    method: 'GET',
   });
 }

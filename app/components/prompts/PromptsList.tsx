@@ -31,6 +31,7 @@ import { GPTModel, useChatStore } from '../../store';
 import { useRouter } from 'next/navigation';
 import { SLOT_FIELDS } from '@/app/constant';
 import { useDebouncedCallback } from 'use-debounce';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
 
 const generateRandomColor = () => {
   const r = Math.floor(Math.random() * 256);
@@ -131,6 +132,24 @@ export const Prompts: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      <Flex direction={'column'} justifyContent="center" alignItems={'center'} mb="1rem">
+        <Button
+          size={'lg'}
+          rightIcon={<ArrowForwardIcon />}
+          bg={'#7928CA'}
+          color={'white'}
+          bgGradient="linear(to-l, rgb(29, 147, 171), #ced514)"
+          _hover={{
+            bg: 'linear(to-l, #2d9164, #131f62)',
+          }}
+          onClick={() => {
+            router.push('/chat');
+          }}
+        >
+          开始对话
+        </Button>
+      </Flex>
+
       <div className={styles.searchArea}>
         <Input
           placeholder="搜索快捷指令"

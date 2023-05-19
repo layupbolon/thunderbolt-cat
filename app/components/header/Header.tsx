@@ -24,6 +24,8 @@ import {
   Image,
   Text,
   keyframes,
+  Link,
+  useToast,
 } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 import { getCheckIn, getUserByAccount } from '../../aigc-tools-requests';
@@ -39,18 +41,22 @@ export const Header = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<UserInfo>();
   const [loading, setLoading] = useState<boolean>(true);
+  const toast = useToast();
 
   const router = useRouter();
 
   const handleGetUserByToken = useCallback(() => {
-    getUserByAccount()
-      .then((res) => {
-        setUser(res.result);
-
-        setLoading(false);
+    setLoading(true);
+    Promise.all([getCheckIn(), getUserByAccount()])
+      .then(([checkInResult, userAccountResult]) => {
+        console.log('checkInResult: ', checkInResult);
+        setUser(userAccountResult.result);
       })
       .catch(() => {
         window.location.href = '/login';
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -188,44 +194,33 @@ export const Header = (props: Props) => {
                           : '---'}
                       </Text>
                     </Stack>
-
-                    <Stack direction={'column'} align={'center'} spacing={6}>
+                    <Stack direction={'row'} justify={'center'} spacing={6}>
                       {(user?.vipType === 0 || user?.vipType === 1) && (
-                        <Stack spacing={0} align={'center'} direction={'row'}>
-                          <Text fontSize={'sm'}>
-                            GPT 3.5 使用次数剩余
-                            <span
-                              style={{
-                                color: 'rgb(29, 147, 171)',
-                                fontWeight: '800',
-                              }}
-                            >
-                              {Math.max(
-                                (user?.visitLimit ?? 0) - (user?.visitCount ?? 0),
-                                0,
-                              )}
-                            </span>
-                            次
+                        <Stack spacing={0} align={'center'}>
+                          <Text color={'gray.500'} fontSize={'sm'}>
+                            GPT-3.5剩余次数
+                          </Text>
+                          <Text fontWeight={600}>
+                            {Math.max(
+                              (user?.visitLimit ?? 0) - (user?.visitCount ?? 0),
+                              0,
+                            )}
                           </Text>
                         </Stack>
                       )}
-                      <Stack spacing={0} align={'center'} direction={'row'}>
-                        <Text fontSize={'sm'}>
-                          GPT 4 使用次数剩余
-                          <span
-                            style={{
-                              color: 'rgb(29, 147, 171)',
-                              fontWeight: '800',
-                            }}
-                          >
-                            {Math.max(
-                              (user?.visit4Limit ?? 0) - (user?.visit4Count ?? 0),
-                              0,
-                            )}
-                          </span>
-                          次
+
+                      <Stack spacing={0} align={'center'}>
+                        <Text color={'gray.500'} fontSize={'sm'}>
+                          GPT-4剩余次数
+                        </Text>
+                        <Text fontWeight={600}>
+                          {Math.max(
+                            (user?.visit4Limit ?? 0) - (user?.visit4Count ?? 0),
+                            0,
+                          )}
                         </Text>
                       </Stack>
+
                       {user?.vipType === 2 &&
                         user.validateDate &&
                         user.validateDate.length && (
@@ -239,11 +234,13 @@ export const Header = (props: Props) => {
                               user.validateDate[4],
                               user.validateDate[5],
                             ).getTime() ? (
-                              <Text fontWeight={600}>已过期</Text>
+                              <Text fontWeight={600}>会员已过期</Text>
                             ) : (
                               <>
-                                <Text fontWeight={600}>到期时间</Text>
-                                <Text fontSize={'lg'} color={'rgb(29, 147, 171)'}>
+                                <Text color={'gray.500'} fontSize={'sm'}>
+                                  会员到期时间
+                                </Text>
+                                <Text fontWeight={600}>
                                   {new Date(
                                     user.validateDate[0],
                                     user.validateDate[1] - 1,
@@ -257,12 +254,39 @@ export const Header = (props: Props) => {
                             )}
                           </Stack>
                         )}
+
+                      <Stack spacing={0} align={'center'}>
+                        <Text color={'gray.500'} fontSize={'sm'}>
+                          签到积分
+                        </Text>
+                        <Text
+                          color={'blue.400'}
+                          fontSize="1rem"
+                          fontWeight={600}
+                          _hover={{
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => {
+                            // router.push('/checkIn');
+                            // setIsOpen(false);
+                            toast({
+                              title: '敬请期待',
+                              status: 'info',
+                              duration: 2000,
+                              isClosable: true,
+                            });
+                          }}
+                        >
+                          {user?.points ?? 0}
+                        </Text>
+                      </Stack>
                     </Stack>
 
-                    {/* <Button
+                    <Button
                       w={'full'}
-                      colorScheme="teal"
-                      variant="outline"
+                      colorScheme="yellow"
+                      color={'white'}
+                      variant="solid"
                       rounded={'md'}
                       mt={8}
                       _hover={{
@@ -275,7 +299,7 @@ export const Header = (props: Props) => {
                       }}
                     >
                       签 到
-                    </Button> */}
+                    </Button>
 
                     <Button
                       w={'full'}

@@ -53,6 +53,10 @@ export interface UserInfo {
    * AI绘图使用次数上限
    */
   imageLimit: number;
+  /**
+   * 签到积分
+   */
+  points: number;
 }
 
 export interface LoginResult {
