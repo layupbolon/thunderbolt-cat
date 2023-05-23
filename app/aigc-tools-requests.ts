@@ -2,6 +2,8 @@ import type {
   BaseResponse,
   CheckInInfo,
   CheckInRule,
+  ExchangeRule,
+  ExchangeType,
   LoginResult,
   PackageInfo,
   Prompt,
@@ -274,9 +276,29 @@ export async function receivePoints(
   });
 }
 
-export async function getPointsExchangeRule(): Promise<BaseResponse<any>> {
+export async function getPointsExchangeRule(): Promise<BaseResponse<ExchangeRule>> {
   return fetchImpl({
     url: `/api/points-exchange/rule`,
     method: 'GET',
+  });
+}
+
+export async function exchangePoints({
+  exchangeType,
+  points,
+  account = window.localStorage.getItem(USER_ACCOUNT),
+}: {
+  exchangeType: ExchangeType;
+  points: number;
+  account?: string | null;
+}): Promise<BaseResponse<any>> {
+  return fetchImpl({
+    url: `/api/points-exchange`,
+    method: 'POST',
+    body: {
+      account,
+      exchangeType,
+      points,
+    },
   });
 }

@@ -31,8 +31,12 @@ const nextConfig = {
         destination: `${url}/v1/receive-points`,
       },
       {
-        source: '/api/points-exchange/:path*',
-        destination: `${url}/v1/points-exchange/:path*`,
+        source: '/api/points-exchange/rule',
+        destination: `${url}/v1/points-exchange/rule`,
+      },
+      {
+        source: '/api/points-exchange',
+        destination: `${url}/v1/points-exchange`,
       },
       {
         source: '/api/pay/notify',

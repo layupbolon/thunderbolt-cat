@@ -131,3 +131,15 @@ export interface CheckInRule {
   fourteenDay: number;
   continueSeven: number;
 }
+
+export interface ExchangeRule {
+  exchangePerGpt3Count: number;
+  exchangePerGpt4Count: number;
+  exchangePerHour: number;
+}
+
+export enum ExchangeType {
+  GPT3 = 0,
+  GPT4 = 1,
+  HOURS = 2,
+}

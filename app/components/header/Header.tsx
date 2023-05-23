@@ -24,7 +24,6 @@ import {
   Image,
   Text,
   keyframes,
-  Link,
   useToast,
 } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
@@ -267,14 +266,14 @@ export const Header = (props: Props) => {
                             cursor: 'pointer',
                           }}
                           onClick={() => {
-                            // router.push('/checkIn');
-                            // setIsOpen(false);
-                            toast({
-                              title: '敬请期待',
-                              status: 'info',
-                              duration: 2000,
-                              isClosable: true,
-                            });
+                            router.push('/exchange');
+                            setIsOpen(false);
+                            // toast({
+                            //   title: '敬请期待',
+                            //   status: 'info',
+                            //   duration: 2000,
+                            //   isClosable: true,
+                            // });
                           }}
                         >
                           {user?.points ?? 0}
