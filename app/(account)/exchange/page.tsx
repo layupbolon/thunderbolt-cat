@@ -89,6 +89,7 @@ export default function UpgradePackageList() {
                 _hover={{
                   bg: 'linear(to-l, #2d9164, #131f62)',
                 }}
+                isDisabled={(user?.points ?? 0) < exchangeRule.exchangePerGpt3Count * 100}
                 onClick={() => {
                   exchangePoints({
                     exchangeType: ExchangeType.GPT3,
@@ -146,6 +147,7 @@ export default function UpgradePackageList() {
                 _hover={{
                   bg: 'linear(to-l, #2d9164, #131f62)',
                 }}
+                isDisabled={(user?.points ?? 0) < exchangeRule.exchangePerGpt4Count * 100}
                 onClick={() => {
                   exchangePoints({
                     exchangeType: ExchangeType.GPT4,
@@ -213,6 +215,9 @@ export default function UpgradePackageList() {
                     _hover={{
                       bg: 'linear(to-l, #2d9164, #131f62)',
                     }}
+                    isDisabled={
+                      (user?.points ?? 0) < exchangeRule.exchangePerHour * 24 * 5
+                    }
                     onClick={() => {
                       exchangePoints({
                         exchangeType: ExchangeType.HOURS,
