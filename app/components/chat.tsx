@@ -9,6 +9,8 @@ import {
   autoGrowTextArea,
 } from '../utils';
 
+import GPT3Tokenizer from 'gpt3-tokenizer';
+
 import dynamic from 'next/dynamic';
 import { useDebouncedCallback } from 'use-debounce';
 import { useToast } from '@chakra-ui/react';
@@ -415,6 +417,19 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
   // submit user input
   const onUserSubmit = () => {
     if (userInput.length <= 0) return;
+    const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
+    const encoded = tokenizer.encode(userInput);
+    if (encoded.text.length > 2048) {
+      toast({
+        title:
+          '输入过长，最多只能输入2048个字符，当前输入了' + encoded.text.length + '个字符',
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+      });
+      return;
+    }
+
     setIsLoading(true);
     chatStore.onUserInput(userInput, toast).then(() => setIsLoading(false));
     setBeforeInput(userInput);
@@ -691,7 +706,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             ref={inputRef}
             maxLength={2000}
             className={styles['chat-input']}
-            placeholder={'Enter 发送，Shift + Enter 换行。最多输入2000字。'}
+            placeholder={'Enter 发送，Shift + Enter 换行'}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}

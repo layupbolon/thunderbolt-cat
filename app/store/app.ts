@@ -122,7 +122,7 @@ export const ModalConfigValidator = {
 };
 
 const DEFAULT_CONFIG: ChatConfig = {
-  historyMessageCount: 10,
+  historyMessageCount: 4,
   compressMessageLengthThreshold: 1000,
   sendBotMessages: true as boolean,
   submitKey: SubmitKey.CtrlEnter as SubmitKey,
@@ -487,7 +487,7 @@ export const useChatStore = create<ChatStore>()(
         }
 
         const recentMessages = context.concat(
-          messages.slice(-6), // 取最新的10条消息
+          messages.slice(-4), // 取最新的10条消息
         );
 
         return recentMessages;
@@ -557,13 +557,11 @@ export const useChatStore = create<ChatStore>()(
             toBeSummarizedMsgs.concat({
               role: 'system',
               content:
-                '简要总结一下你和用户的对话，用作后续的上下文提示 prompt，控制在 200 字以内',
+                '简要总结一下你和用户的对话，用作后续的上下文提示 prompt，控制在 100 字以内',
               date: '',
             }),
             {
-              gptModal: session.gptModel,
-              promptId: session.promptId,
-              promptParams: session.slotFields,
+              gptModal: GPTModel.GPT3_5,
               firstCall: 0,
               filterBot: false,
               onMessage(message, done) {

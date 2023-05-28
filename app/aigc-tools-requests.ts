@@ -99,16 +99,18 @@ function randomString(len?: number) {
 
 export async function getPayUrl(pkg: PackageInfo): Promise<BaseResponse<string>> {
   return fetchImpl({
-    url: '/api/user/get-pay-url',
+    url: `/api/user/get-pay-url`,
     body: {
       money: pkg.price,
       // money: 0.01,
-      name: pkg.planName,
+      // name: pkg.planName,
+      name: 'vip',
       notify_url: 'http://45.63.57.39:8080/v1/user/pay/notify',
       out_trade_no: randomString(),
-      pid: '1588',
+      pid: '10010',
       return_url: `${window.location.origin}/result`,
       type: 'alipay',
+      param: pkg.id,
     },
     method: 'POST',
   });
@@ -300,5 +302,29 @@ export async function exchangePoints({
       exchangeType,
       points,
     },
+  });
+}
+
+export async function resetPwd(
+  account: string,
+  newPassword: string,
+  validateCode: string,
+) {
+  return fetchImpl({
+    url: '/api/user/set-new-password',
+    body: { account, newPassword, validateCode },
+    method: 'POST',
+    withoutCredentials: true,
+  });
+}
+
+export async function requestValidateCodeInResetPwd(
+  account: string,
+): Promise<BaseResponse<any>> {
+  return await fetchImpl({
+    url: '/api/user/find-password-validate',
+    body: { account },
+    method: 'POST',
+    withoutCredentials: true,
   });
 }

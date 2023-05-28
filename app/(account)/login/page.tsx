@@ -104,6 +104,9 @@ export default function SimpleCard() {
                 <Link color={'blue.400'} href="/register">
                   注册
                 </Link>
+                <Link color={'blue.400'} href="/forget">
+                  忘记密码
+                </Link>
               </Stack>
               <Button
                 bg={'blue.400'}

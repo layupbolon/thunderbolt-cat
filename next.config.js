@@ -19,6 +19,10 @@ const nextConfig = {
   rewrites() {
     return [
       {
+        source: '/api/order/:path*',
+        destination: `${url}/api/order/:path*`,
+      },
+      {
         source: '/api/user/:path*',
         destination: `${url}/v1/user/:path*`,
       },

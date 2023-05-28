@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Flex,
   Box,
@@ -11,19 +12,16 @@ import {
   Stack,
   Button,
   Heading,
-  Text,
   useColorModeValue,
-  Link,
   useToast,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { register, requestValidateCode } from '../../aigc-tools-requests';
-import { INVITE_CODE } from '@/app/constant';
+import { useRouter } from 'next/navigation';
+import { requestValidateCodeInResetPwd, resetPwd } from '../../aigc-tools-requests';
 import Logo from '../../icons/logo.svg';
 
-export default function SignupCard() {
+export default function ForgetCard() {
   const toast = useToast();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +34,6 @@ export default function SignupCard() {
   const [timerId, setTimerId] = useState<NodeJS.Timer>();
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     return () => {
@@ -69,7 +66,7 @@ export default function SignupCard() {
   };
 
   const handleRequestValidateCode = () => {
-    requestValidateCode(account!)
+    requestValidateCodeInResetPwd(account!)
       .then((res) => {
         if (res && +res.code !== 0) {
           toast({
@@ -93,11 +90,11 @@ export default function SignupCard() {
       });
   };
 
-  const handleRegister = () => {
-    register(account!, pwd!, validateCode!, window.localStorage.getItem(INVITE_CODE))
+  const handleResetPwd = () => {
+    resetPwd(account!, pwd!, validateCode!)
       .then(() => {
         toast({
-          title: '注册成功',
+          title: '修改密码成功',
           status: 'success',
           duration: 1000,
           isClosable: true,
@@ -120,11 +117,8 @@ export default function SignupCard() {
         <Stack align={'center'}>
           <Logo />
           <Heading fontSize={'4xl'} textAlign={'center'} color="white">
-            注册账户
+            忘记密码
           </Heading>
-          <Text fontSize={'lg'} color={'rgb(187, 187, 187)'}>
-            享受AI带来的便利吧
-          </Text>
         </Stack>
         <Box
           rounded={'lg'}
@@ -169,7 +163,7 @@ export default function SignupCard() {
               </Box>
             </HStack>
             <FormControl id="password" isRequired>
-              <FormLabel>密码</FormLabel>
+              <FormLabel>新密码</FormLabel>
               <InputGroup>
                 <Input
                   type={showPassword ? 'text' : 'password'}
@@ -224,18 +218,10 @@ export default function SignupCard() {
                   !pwd2.length ||
                   pwd !== pwd2
                 }
-                onClick={handleRegister}
+                onClick={handleResetPwd}
               >
-                注 册
+                提 交
               </Button>
-            </Stack>
-            <Stack pt={6}>
-              <Text align={'center'}>
-                已有账号?
-                <Link color={'blue.400'} href="/login">
-                  登录
-                </Link>
-              </Text>
             </Stack>
           </Stack>
         </Box>

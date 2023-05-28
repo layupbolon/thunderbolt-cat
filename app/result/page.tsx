@@ -8,7 +8,7 @@ import { payNotify } from '../aigc-tools-requests';
 import { PAY_PLAN_ID, USER_INFO_STORAGE_KEY } from '../constant';
 
 export default function PayResult() {
-  const [success, setSuccess] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(true);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,17 +25,21 @@ export default function PayResult() {
     if (!trade_no || !out_trade_no || !plan_id || !account) {
       return;
     }
-    payNotify({
-      trade_no,
-      out_trade_no,
-      plan_id,
-      account,
-    }).then((res) => {
-      setSuccess(true);
-      setTimeout(() => {
-        router.replace('/');
-      }, 3000);
-    });
+    // payNotify({
+    //   trade_no,
+    //   out_trade_no,
+    //   plan_id,
+    //   account,
+    // }).then((res) => {
+    //   setSuccess(true);
+    //   setTimeout(() => {
+    //     router.replace('/');
+    //   }, 3000);
+    // });
+
+    setTimeout(() => {
+      router.replace('/');
+    }, 3000);
   }, [router, searchParams]);
 
   return (

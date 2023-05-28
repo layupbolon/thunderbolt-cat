@@ -9,7 +9,7 @@
     "start": "next start -p 8000",
     "lint": "next lint",
     "fetch": "node ./scripts/fetch-prompts.mjs",
-    "serve": "yarn build && pm2 start yarn --name 'aigc' --start",
+    "serve": "yarn build && pm2 start npm --name 'aigc' -- run start",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -43,6 +43,7 @@
     "sass": "^1.59.2",
     "spark-md5": "^3.0.2",
     "swr": "^2.1.3",
+    "gpt3-tokenizer": "^1.1.5",
     "use-debounce": "^9.0.3",
     "zustand": "^4.3.6"
   },
