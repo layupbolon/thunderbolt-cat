@@ -419,10 +419,10 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
     if (userInput.length <= 0) return;
     const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
     const encoded = tokenizer.encode(userInput);
-    if (encoded.text.length > 2048) {
+    const limitToken = 1000;
+    if (encoded.text.length > limitToken) {
       toast({
-        title:
-          '输入过长，最多只能输入2048个字符，当前输入了' + encoded.text.length + '个字符',
+        title: `输入过长，最多只能输入${limitToken}个字符，当前输入了${encoded.text.length}个字符`,
         status: 'warning',
         duration: 9000,
         isClosable: true,
