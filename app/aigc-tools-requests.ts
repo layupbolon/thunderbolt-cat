@@ -265,7 +265,14 @@ export async function checkIn(
 }
 
 export async function receivePoints(
-  rewardType: string,
+  /**
+    CONTINUE_SEVEN_DAY(0,"连续七天签到奖励"),
+    SEVEN_DAY(1,"累计七天奖励"),
+    FOUR_TEEN_DAY(2,"累计14天奖励"),
+    TWENTY_ONE(3,"累计21天奖励"),
+    TWENTY_EIGHT(4,"累计28天奖励");
+   */
+  rewardType: 0 | 1 | 2 | 3 | 4,
   account = window.localStorage.getItem(USER_ACCOUNT),
 ): Promise<BaseResponse<any>> {
   return fetchImpl({
