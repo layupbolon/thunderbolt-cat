@@ -702,45 +702,48 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             </div>
           )}
         </div>
-        <div className={styles['window-actions']}>
-          <div className={styles['window-action-button'] + ' ' + styles.mobile}>
-            <IconButton
-              icon={<ReturnIcon />}
-              bordered
-              title={'查看消息列表'}
-              onClick={props?.showSideBar}
+        {!session.midjourney && (
+          <>
+            <div className={styles['window-actions']}>
+              <div className={styles['window-action-button'] + ' ' + styles.mobile}>
+                <IconButton
+                  icon={<ReturnIcon />}
+                  bordered
+                  title={'查看消息列表'}
+                  onClick={props?.showSideBar}
+                />
+              </div>
+              <div className={styles['window-action-button']}>
+                <IconButton
+                  icon={<BrainIcon />}
+                  bordered
+                  title={'查看压缩后的历史 Prompt'}
+                  onClick={() => {
+                    setShowPromptModal(true);
+                  }}
+                />
+              </div>
+              <div className={styles['window-action-button']}>
+                <IconButton
+                  icon={<ExportIcon />}
+                  bordered
+                  title={'导出聊天记录'}
+                  onClick={() => {
+                    exportMessages(
+                      session.messages.filter((msg) => !msg.isError),
+                      session.topic,
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <PromptToast
+              showToast={!hitBottom}
+              showModal={showPromptModal}
+              setShowModal={setShowPromptModal}
             />
-          </div>
-          <div className={styles['window-action-button']}>
-            <IconButton
-              icon={<BrainIcon />}
-              bordered
-              title={'查看压缩后的历史 Prompt'}
-              onClick={() => {
-                setShowPromptModal(true);
-              }}
-            />
-          </div>
-          <div className={styles['window-action-button']}>
-            <IconButton
-              icon={<ExportIcon />}
-              bordered
-              title={'导出聊天记录'}
-              onClick={() => {
-                exportMessages(
-                  session.messages.filter((msg) => !msg.isError),
-                  session.topic,
-                );
-              }}
-            />
-          </div>
-        </div>
-
-        <PromptToast
-          showToast={!hitBottom}
-          showModal={showPromptModal}
-          setShowModal={setShowPromptModal}
-        />
+          </>
+        )}
       </div>
 
       <div
