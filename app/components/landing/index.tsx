@@ -7,10 +7,12 @@ import { INVITE_CODE, LOGO_SLOGAN } from '@/app/constant';
 import Logo from '../../icons/logo.svg';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { useEffect } from 'react';
+import { Message, useChatStore, ROLES, createMessage } from '../../store';
 
 export const Landing = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const chatStore = useChatStore();
 
   useEffect(() => {
     const invite = searchParams.get('invite');
@@ -45,7 +47,36 @@ export const Landing = () => {
               router.push('/prompt');
             }}
           >
-            立即使用
+            AI 智能机器人
+          </Button>
+          <Button
+            size={'lg'}
+            rightIcon={<ArrowForwardIcon />}
+            colorScheme="teal"
+            // bg={'#2a9aae'}
+            // color={'white'}
+            // bgGradient="linear(to-l, rgb(188, 179, 201), #cd9085)"
+            _hover={{
+              bg: 'linear(to-l, #2d9164, #131f62)',
+            }}
+            onClick={() => {
+              router.push('/chat');
+
+              if (chatStore.sessions.some((session) => session.midjourney)) {
+                chatStore.selectSession(
+                  chatStore.sessions.findIndex((session) => session.midjourney),
+                );
+              } else {
+                chatStore.newSession({
+                  midjourney: true,
+                  promptId: '0',
+                  promptRule: 'AI 绘画',
+                });
+              }
+            }}
+            ml={4}
+          >
+            AI 绘画
           </Button>
         </div>
       </div>

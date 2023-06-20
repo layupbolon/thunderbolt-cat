@@ -7,12 +7,16 @@ import { ControllerPool, requestChatStream, requestWithPrompt } from '../request
 import { isMobileScreen, trimTopic } from '../utils';
 
 import { showToast } from '../components/ui-lib';
+import { TOKEN_STORAGE_KEY } from '../constant';
+import { middleware } from '../../middleware';
 
 export type Message = ChatCompletionResponseMessage & {
   date: string;
   streaming?: boolean;
   isError?: boolean;
   id?: number;
+  attr?: any;
+  model?: string;
 };
 
 export function createMessage(override: Partial<Message>): Message {
@@ -21,6 +25,7 @@ export function createMessage(override: Partial<Message>): Message {
     date: new Date().toLocaleString(),
     role: 'user',
     content: '',
+    attr: {},
     ...override,
   };
 }
@@ -162,6 +167,7 @@ export interface ChatSession {
   stat: ChatStat;
   lastUpdate: string;
   lastSummarizeIndex: number;
+  clearContextIndex?: number;
   promptId?: string;
   slotFields?: Record<string, string>;
   /**
@@ -169,6 +175,10 @@ export interface ChatSession {
    */
   firstCall: number;
   gptModel: GPTModel;
+  /**
+   * 是否是 midjourney
+   */
+  midjourney?: boolean;
 }
 
 const DEFAULT_TOPIC = '新的聊天';
@@ -180,6 +190,7 @@ export const BOT_HELLO: Message = createMessage({
 function createEmptySession(selectedPrompt?: {
   promptId: string;
   promptRule: string;
+  midjourney?: boolean;
 }): ChatSession {
   const createDate = new Date().toLocaleString();
 
@@ -200,6 +211,7 @@ function createEmptySession(selectedPrompt?: {
     promptId: selectedPrompt?.promptId,
     firstCall: 1,
     gptModel: GPTModel.GPT3_5,
+    midjourney: selectedPrompt?.midjourney,
   };
 }
 
@@ -211,11 +223,21 @@ interface ChatStore {
   removeSession: (index: number) => void;
   moveSession: (from: number, to: number) => void;
   selectSession: (index: number) => void;
-  newSession: (selectedPrompt?: { promptId: string; promptRule: string }) => void;
+  newSession: (selectedPrompt?: {
+    promptId: string;
+    promptRule: string;
+    midjourney: boolean;
+  }) => void;
   deleteSession: () => void;
   currentSession: () => ChatSession;
   onNewMessage: (message: Message) => void;
-  onUserInput: (content: string, toast: CreateToastFnReturn) => Promise<void>;
+  onUserInput: (
+    content: string,
+    extAttr?: {
+      toast: CreateToastFnReturn;
+      midjourney: boolean;
+    } & Record<string, any>,
+  ) => Promise<void>;
   summarizeSession: () => void;
   updateStat: (message: Message) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
@@ -326,7 +348,11 @@ export const useChatStore = create<ChatStore>()(
         });
       },
 
-      newSession(selectedPrompt?: { promptId: string; promptRule: string }) {
+      newSession(selectedPrompt?: {
+        promptId: string;
+        promptRule: string;
+        midjourney?: boolean;
+      }) {
         set((state) => ({
           currentSessionIndex: 0,
           sessions: [createEmptySession(selectedPrompt)].concat(state.sessions),
@@ -355,7 +381,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       currentSession() {
-        let index = get().currentSessionIndex;
+        let index: number = get().currentSessionIndex;
         const sessions = get().sessions;
 
         if (index < 0 || index >= sessions.length) {
@@ -376,7 +402,30 @@ export const useChatStore = create<ChatStore>()(
         get().summarizeSession();
       },
 
-      async onUserInput(content, toast) {
+      async onUserInput(
+        content,
+        extAttr?: {
+          toast: CreateToastFnReturn;
+          midjourney: boolean;
+        } & Record<string, any>,
+      ) {
+        if (
+          extAttr?.mjImageMode &&
+          (extAttr?.useImages?.length ?? 0) > 0 &&
+          extAttr.mjImageMode !== 'IMAGINE'
+        ) {
+          if (extAttr.mjImageMode === 'BLEND' && extAttr.useImages.length < 2) {
+            alert('混图模式下至少需要 2 张图片');
+            return new Promise((resolve: any, reject) => {
+              resolve(false);
+            });
+          }
+          content = extAttr?.mjImageMode;
+          extAttr.useImages.forEach((img: any, index: number) => {
+            content += `::[${index + 1}]${img.filename}`;
+          });
+        }
+
         const userMessage: Message = createMessage({
           role: 'user',
           content,
@@ -385,6 +434,7 @@ export const useChatStore = create<ChatStore>()(
         const botMessage: Message = createMessage({
           role: 'assistant',
           streaming: true,
+          id: userMessage.id! + 1,
         });
 
         // get recent messages
@@ -402,61 +452,305 @@ export const useChatStore = create<ChatStore>()(
         // make request
         console.log('[User Input] ', sendMessages);
 
-        const session = get().currentSession();
-
-        requestChatStream(sendMessages, {
-          gptModal: session.gptModel,
-          promptId: session.promptId,
-          promptParams: session.slotFields,
-          firstCall: session.firstCall,
-          onMessage(content, done) {
-            // stream response
-            if (done) {
+        if (extAttr?.midjourney) {
+          botMessage.model = 'midjourney';
+          const startFn = async () => {
+            const prompt = content.trim();
+            let action: string = 'IMAGINE';
+            const firstSplitIndex = prompt.indexOf('::');
+            if (firstSplitIndex > 0) {
+              action = prompt.substring(0, firstSplitIndex);
+            }
+            if (
+              ![
+                'UPSCALE',
+                'VARIATION',
+                'IMAGINE',
+                'DESCRIBE',
+                'BLEND',
+                'REROLL',
+              ].includes(action)
+            ) {
+              botMessage.content = '任务提交失败：未知的任务类型';
               botMessage.streaming = false;
-              botMessage.content = content;
-              get().onNewMessage(botMessage);
+              return;
+            }
+            botMessage.attr.action = action;
+            let actionIndex: any = null;
+            let actionUseTaskId: any = null;
+            if (action === 'VARIATION' || action == 'UPSCALE' || action == 'REROLL') {
+              actionIndex = parseInt(
+                prompt.substring(firstSplitIndex + 2, firstSplitIndex + 3),
+              );
+              actionUseTaskId = prompt.substring(firstSplitIndex + 5);
+            }
+            try {
+              let res = null;
+              const reqFn = (path: string, method: string, body?: any) => {
+                return fetch('/api/midjourney/mj/' + path, {
+                  method: method,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    token: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
+                  },
+                  body,
+                });
+              };
+              switch (action) {
+                case 'IMAGINE': {
+                  res = await reqFn(
+                    'submit/imagine',
+                    'POST',
+                    JSON.stringify({
+                      prompt: prompt,
+                      base64: extAttr?.useImages?.[0]?.base64 ?? null,
+                    }),
+                  );
+                  break;
+                }
+                case 'DESCRIBE': {
+                  res = await reqFn(
+                    'submit/describe',
+                    'POST',
+                    JSON.stringify({
+                      base64: extAttr?.useImages[0].base64,
+                    }),
+                  );
+                  break;
+                }
+                case 'BLEND': {
+                  res = await reqFn(
+                    'submit/blend',
+                    'POST',
+                    JSON.stringify({
+                      base64Array: [
+                        extAttr?.useImages[0].base64,
+                        extAttr?.useImages[1].base64,
+                      ],
+                    }),
+                  );
+                  break;
+                }
+                case 'UPSCALE':
+                case 'VARIATION':
+                case 'REROLL': {
+                  res = await reqFn(
+                    'submit/change',
+                    'POST',
+                    JSON.stringify({
+                      action: action,
+                      index: actionIndex,
+                      taskId: actionUseTaskId,
+                    }),
+                  );
+                  break;
+                }
+                default:
+              }
+              if (res == null) {
+                botMessage.content = `任务提交失败：不支持的任务类型 -> ${action}`;
+                botMessage.streaming = false;
+                return;
+              }
+
+              if (res.status === 401 || res.status === 403) {
+                window.location.href = '/login';
+                throw new Error('现在是未授权状态，请先登录。');
+              } else if (res.status === 402) {
+                extAttr?.toast({
+                  title: '会员计划已用完！请升级会员计划！',
+                  status: 'warning',
+                  duration: 9000,
+                  isClosable: true,
+                });
+                throw new Error('会员计划已用完！请升级会员计划！');
+              }
+              if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`\n状态码：${res.status}\n响应体：${text || '无'}`);
+              }
+              const resJson = await res.json();
+              if (
+                res.status < 200 ||
+                res.status >= 300 ||
+                (resJson.code != 1 && resJson.code != 22)
+              ) {
+                botMessage.content = `任务提交失败：${
+                  resJson?.msg || resJson?.error || resJson?.description || '未知错误'
+                }`;
+              } else {
+                const taskId: string = resJson.result;
+                const prefixContent = `**画面描述:** ${prompt}\n**任务ID:** ${taskId}\n`;
+                botMessage.content =
+                  prefixContent +
+                    `[${new Date().toLocaleString()}] - 任务提交成功: ` +
+                    resJson?.description || '请稍等片刻';
+                botMessage.attr.taskId = taskId;
+                const fetchStatus = (taskId: string) => {
+                  setTimeout(async () => {
+                    const statusRes = await fetch(
+                      `/api/midjourney/mj/task/${taskId}/fetch`,
+                      {
+                        method: 'GET',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          token: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
+                        },
+                      },
+                    );
+                    const statusResJson = await statusRes.json();
+                    if (statusRes.status < 200 || statusRes.status >= 300) {
+                      botMessage.content = `任务状态获取失败 : ${
+                        resJson?.error || resJson?.description || '未知原因'
+                      }`;
+                    } else {
+                      let isFinished = false;
+                      let content;
+                      switch (statusResJson?.status) {
+                        case 'SUCCESS':
+                          content = statusResJson.imageUrl;
+                          isFinished = true;
+                          if (statusResJson.imageUrl) {
+                            // let imgUrl = useGetMidjourneySelfProxyUrl(
+                            //   statusResJson.imageUrl,
+                            // );
+                            let imgUrl = statusResJson.imageUrl;
+                            botMessage.attr.imgUrl = imgUrl;
+                            botMessage.content =
+                              prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
+                          }
+                          if (action === 'DESCRIBE' && statusResJson.prompt) {
+                            botMessage.content += `\n${statusResJson.prompt}`;
+                          }
+                          break;
+                        case 'FAILURE':
+                          content = statusResJson.failReason || '未知原因';
+                          isFinished = true;
+                          botMessage.content =
+                            prefixContent +
+                            `**任务状态:** [${new Date().toLocaleString()}] - ${content}`;
+                          break;
+                        case 'NOT_START':
+                          content = '任务尚未开始';
+                          break;
+                        case 'IN_PROGRESS':
+                          content = `任务正在运行${
+                            statusResJson.progress
+                              ? `，当前进度：${statusResJson.progress}`
+                              : ''
+                          }`;
+                          break;
+                        case 'SUBMITTED':
+                          content = '任务已提交至Midjourney服务器';
+                          break;
+                        default:
+                          content = statusResJson.status;
+                      }
+                      botMessage.attr.status = statusResJson.status;
+                      if (isFinished) {
+                        botMessage.attr.finished = true;
+                      } else {
+                        botMessage.content =
+                          prefixContent +
+                          `**任务状态:** [${new Date().toLocaleString()}] - ${content}`;
+                        if (
+                          statusResJson.status === 'IN_PROGRESS' &&
+                          statusResJson.imageUrl
+                        ) {
+                          // let imgUrl = useGetMidjourneySelfProxyUrl(
+                          //   statusResJson.imageUrl,
+                          // );
+                          let imgUrl = statusResJson.imageUrl;
+                          botMessage.attr.imgUrl = imgUrl;
+                          botMessage.content += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
+                        }
+                        fetchStatus(taskId);
+                      }
+                      set(() => ({}));
+                      if (isFinished) {
+                        extAttr?.setAutoScroll(true);
+                      }
+                    }
+                  }, 3000);
+                };
+                fetchStatus(taskId);
+              }
+            } catch (e: any) {
+              botMessage.content = `任务提交失败：${
+                e?.error || e?.message || '未知错误'
+              }`;
+            } finally {
               ControllerPool.remove(sessionIndex, botMessage.id ?? messageIndex);
-            } else {
-              botMessage.content = content;
+              botMessage.streaming = false;
+            }
+          };
+          await startFn();
+          get().onNewMessage(botMessage);
+          set(() => ({}));
+          extAttr?.setAutoScroll(true);
+        } else {
+          const session = get().currentSession();
+
+          requestChatStream(sendMessages, {
+            gptModal: session.gptModel,
+            promptId: session.promptId,
+            promptParams: session.slotFields,
+            firstCall: session.firstCall,
+            onMessage(content, done) {
+              // stream response
+              if (done) {
+                botMessage.streaming = false;
+                if (content) {
+                  botMessage.content = content;
+                  get().onNewMessage(botMessage);
+                }
+                ControllerPool.remove(sessionIndex, botMessage.id ?? messageIndex);
+                set(() => ({}));
+              } else {
+                botMessage.streaming = true;
+                if (content) {
+                  botMessage.content = content;
+                }
+                set(() => ({}));
+              }
+            },
+            onError(error, statusCode) {
+              if (statusCode === 401 || statusCode === 403) {
+                window.location.href = '/login';
+                botMessage.content = '现在是未授权状态，请先登录。';
+              } else if (statusCode === 402) {
+                botMessage.content = '会员计划已用完！请升级会员计划！';
+                extAttr?.toast({
+                  title: '会员计划已用完！请升级会员计划！',
+                  status: 'warning',
+                  duration: 9000,
+                  isClosable: true,
+                });
+              } else {
+                botMessage.content += '\n\n' + '出错了，稍后重试吧';
+              }
+              botMessage.streaming = false;
+              userMessage.isError = true;
+              botMessage.isError = true;
               set(() => ({}));
-            }
-          },
-          onError(error, statusCode) {
-            if (statusCode === 401 || statusCode === 403) {
-              window.location.href = '/login';
-              botMessage.content = '现在是未授权状态，请先登录。';
-            } else if (statusCode === 402) {
-              botMessage.content = '会员计划已用完！请升级会员计划！';
-              toast({
-                title: '会员计划已用完！请升级会员计划！',
-                status: 'warning',
-                duration: 9000,
-                isClosable: true,
-              });
-            } else {
-              botMessage.content += '\n\n' + '出错了，稍后重试吧';
-            }
-            botMessage.streaming = false;
-            userMessage.isError = true;
-            botMessage.isError = true;
-            set(() => ({}));
-            ControllerPool.remove(sessionIndex, botMessage.id ?? messageIndex);
-          },
-          onController(controller) {
-            // collect controller for stop/retry
-            ControllerPool.addController(
-              sessionIndex,
-              botMessage.id ?? messageIndex,
-              controller,
-            );
-          },
-          filterBot: !get().config.sendBotMessages,
-          modelConfig: get().config.modelConfig,
-        }).finally(() => {
-          get().updateCurrentSession((session) => {
-            session.firstCall = 0;
+              ControllerPool.remove(sessionIndex, botMessage.id ?? messageIndex);
+            },
+            onController(controller) {
+              // collect controller for stop/retry
+              ControllerPool.addController(
+                sessionIndex,
+                botMessage.id ?? messageIndex,
+                controller,
+              );
+            },
+            filterBot: !get().config.sendBotMessages,
+            modelConfig: get().config.modelConfig,
+          }).finally(() => {
+            get().updateCurrentSession((session) => {
+              session.firstCall = 0;
+            });
           });
-        });
+        }
       },
 
       getMemoryPrompt() {
@@ -471,8 +765,11 @@ export const useChatStore = create<ChatStore>()(
 
       getMessagesWithMemory() {
         const session = get().currentSession();
-        const config = get().config;
-        const messages = session.messages.filter((msg) => !msg.isError);
+
+        const clearedContextMessages = session.messages.slice(
+          session.clearContextIndex ?? 0,
+        );
+        const messages = clearedContextMessages.filter((msg) => !msg.isError);
         const n = messages.length;
 
         const context = session.context.slice();
@@ -514,6 +811,10 @@ export const useChatStore = create<ChatStore>()(
 
       summarizeSession() {
         const session = get().currentSession();
+
+        if (session.midjourney) {
+          return;
+        }
 
         // should summarize topic after chating more than 50 words
         const SUMMARIZE_MIN_LEN = 50;

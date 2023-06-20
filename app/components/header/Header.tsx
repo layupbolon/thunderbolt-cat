@@ -220,6 +220,15 @@ export const Header = (props: Props) => {
                         </Text>
                       </Stack>
 
+                      <Stack spacing={0} align={'center'}>
+                        <Text color={'gray.500'} fontSize={'sm'}>
+                          AI绘画剩余次数
+                        </Text>
+                        <Text fontWeight={600}>
+                          {Math.max((user?.imageLimit ?? 0) - (user?.imageCount ?? 0), 0)}
+                        </Text>
+                      </Stack>
+
                       {user?.vipType === 2 &&
                         user.validateDate &&
                         user.validateDate.length && (
@@ -253,32 +262,31 @@ export const Header = (props: Props) => {
                             )}
                           </Stack>
                         )}
-
-                      <Stack spacing={0} align={'center'}>
-                        <Text color={'gray.500'} fontSize={'sm'}>
-                          签到积分
-                        </Text>
-                        <Text
-                          color={'blue.400'}
-                          fontSize="1rem"
-                          fontWeight={600}
-                          _hover={{
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => {
-                            router.push('/exchange');
-                            setIsOpen(false);
-                            // toast({
-                            //   title: '敬请期待',
-                            //   status: 'info',
-                            //   duration: 2000,
-                            //   isClosable: true,
-                            // });
-                          }}
-                        >
-                          {user?.points ?? 0}
-                        </Text>
-                      </Stack>
+                    </Stack>
+                    <Stack spacing={0} align={'center'} mt={4}>
+                      <Text color={'gray.500'} fontSize={'sm'}>
+                        签到积分
+                      </Text>
+                      <Text
+                        color={'blue.400'}
+                        fontSize="1rem"
+                        fontWeight={600}
+                        _hover={{
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => {
+                          router.push('/exchange');
+                          setIsOpen(false);
+                          // toast({
+                          //   title: '敬请期待',
+                          //   status: 'info',
+                          //   duration: 2000,
+                          //   isClosable: true,
+                          // });
+                        }}
+                      >
+                        {user?.points ?? 0}
+                      </Text>
                     </Stack>
 
                     <Button

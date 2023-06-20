@@ -90,7 +90,7 @@ export interface PackageInfo {
   planDescription: string;
   price: number;
   /**
-   * 1: gpt3 次数包；2：包月；3：gpt4 次数包
+   * 1: gpt3 次数包；2：包月；3：gpt4 次数包；4：AI绘画次数
    */
   type: number;
   count: number;

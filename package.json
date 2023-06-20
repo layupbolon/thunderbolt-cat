@@ -13,8 +13,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "cookies": "^0.8.0",
-    "http-proxy": "^1.18.1",
     "@chakra-ui/icons": "^2.0.18",
     "@chakra-ui/next-js": "^2.1.2",
     "@chakra-ui/react": "^2.5.5",
@@ -24,10 +22,16 @@
     "@svgr/webpack": "^6.5.1",
     "@vercel/analytics": "^0.1.11",
     "axios": "^1.3.5",
+    "byte-guide": "^1.0.7",
+    "cookies": "^0.8.0",
     "emoji-picker-react": "^4.4.7",
     "eventsource-parser": "^0.1.0",
     "framer-motion": "^10.11.2",
     "fuse.js": "^6.6.2",
+    "gpt3-tokenizer": "^1.1.5",
+    "html-to-image": "^1.11.11",
+    "http-proxy": "^1.18.1",
+    "mermaid": "^10.1.0",
     "next": "^13.2.3",
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1",
@@ -43,7 +47,6 @@
     "sass": "^1.59.2",
     "spark-md5": "^3.0.2",
     "swr": "^2.1.3",
-    "gpt3-tokenizer": "^1.1.5",
     "use-debounce": "^9.0.3",
     "zustand": "^4.3.6"
   },

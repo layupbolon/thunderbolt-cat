@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { Message, SubmitKey, useChatStore, ROLES, createMessage } from '../store';
+import { Message, useChatStore, ROLES, createMessage } from '../store';
 import {
   copyToClipboard,
   downloadAs,
@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic';
 import { useDebouncedCallback } from 'use-debounce';
 import { useToast } from '@chakra-ui/react';
 
-import { Prompt, usePromptStore } from '../store/prompt';
+import { Prompt } from '../store/prompt';
 
 import { IconButton } from './button';
 import styles from './home.module.scss';
@@ -35,6 +35,14 @@ import SendWhiteIcon from '../icons/send-white.svg';
 import ContinueIcon from '../icons/continue.svg';
 import LoadingIcon from '../icons/three-dots.svg';
 import { ControllerPool } from '../requests';
+
+import UploadIcon from '../icons/upload.svg';
+import { LAST_INPUT_KEY } from '../constant';
+import StopIcon from '../icons/pause.svg';
+import BottomIcon from '../icons/bottom.svg';
+import PromptIcon from '../icons/prompt.svg';
+import { IframeShare } from './mj-prompt-builder';
+import Guide from 'byte-guide';
 
 const Markdown = dynamic(async () => memo((await import('./markdown')).Markdown), {
   loading: () => <LoadingIcon />,
@@ -250,32 +258,6 @@ function PromptToast(props: {
   );
 }
 
-function useSubmitHandler() {
-  const config = useChatStore((state) => state.config);
-  const submitKey = config.submitKey;
-
-  const shouldSubmit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key !== 'Enter') return false;
-    if (e.key === 'Enter' && e.nativeEvent.isComposing) return false;
-    return (
-      (config.submitKey === SubmitKey.AltEnter && e.altKey) ||
-      (config.submitKey === SubmitKey.CtrlEnter && e.ctrlKey) ||
-      (config.submitKey === SubmitKey.ShiftEnter && e.shiftKey) ||
-      (config.submitKey === SubmitKey.MetaEnter && e.metaKey) ||
-      (config.submitKey === SubmitKey.Enter &&
-        !e.altKey &&
-        !e.ctrlKey &&
-        !e.shiftKey &&
-        !e.metaKey)
-    );
-  };
-
-  return {
-    submitKey,
-    shouldSubmit,
-  };
-}
-
 export function PromptHints(props: {
   prompts: Prompt[];
   onPromptSelect: (prompt: Prompt) => void;
@@ -302,20 +284,163 @@ function useScrollToBottom() {
   // for auto-scroll
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
+  const scrollToBottom = () => {
+    const dom = scrollRef.current;
+    if (dom) {
+      setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
+    }
+  };
 
   // auto scroll
   useLayoutEffect(() => {
-    const dom = scrollRef.current;
-    if (dom && autoScroll) {
-      setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
-    }
+    autoScroll && scrollToBottom();
   });
 
   return {
     scrollRef,
     autoScroll,
     setAutoScroll,
+    scrollToBottom,
   };
+}
+
+export function ChatActions(props: {
+  scrollToBottom: () => void;
+  imageSelected: (img: any) => void;
+  hitBottom: boolean;
+  onInput: (text: string) => void;
+}) {
+  // stop all responses
+  const couldStop = ControllerPool.hasPending();
+  const stopAll = () => ControllerPool.stopAll();
+
+  function selectImage() {
+    document.getElementById('chat-image-file-select-upload')?.click();
+  }
+
+  const onImageSelected = (e: any) => {
+    console.log(e);
+    const file = e.target.files[0];
+    const filename = file.name;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64 = reader.result;
+      props.imageSelected({
+        filename,
+        base64,
+      });
+    };
+    e.target.value = null;
+  };
+
+  useEffect(() => {
+    IframeShare({
+      btnEl: 'mj-prompt-builder-btn',
+      url: 'https://punk.openai1s.com/aiimg/prompt?nohead=1&postmsg=1&notext=1',
+      mode: 'slider',
+      position: 'right',
+      width: '650px',
+      preload: true,
+      defaultOpen: false,
+      allowRepeatSubmit: true,
+    });
+
+    const handleMessage = (event: any) => {
+      if (event.origin === 'https://punk.openai1s.com') {
+        let prompt = event.data;
+        console.log(prompt, '打印加工后的prompt');
+        if (prompt.startsWith('/imagine prompt: ')) {
+          prompt = prompt.replace('/imagine prompt: ', '');
+        }
+        props.onInput(prompt);
+        // document.getElementById('chat-input')!.innerText = event.data;
+        // prompts.innerHTML = event.data;
+      }
+    };
+
+    //监听prompt参数
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  return (
+    <div className={chatStyle['chat-input-actions']}>
+      <Guide
+        // localKey="thunderbolt-cat-guide"
+        steps={[
+          {
+            selector: '#thunderbolt-cat-mj-upload',
+            title: '上传图片',
+            content: <div>混图、识图、垫图等功能需要上传图片，具体可点击查看</div>,
+            placement: 'right',
+          },
+          {
+            selector: '#thunderbolt-cat-mj-prompt',
+            title: 'AI绘图提示词生成器',
+            content: (
+              <ul style={{ listStyle: 'none' }}>
+                <li>提高绘图效率</li>
+                <li>提高创作质量</li>
+                <li>丰富创作主题</li>
+                <li>灵活性高</li>
+                <li>节省时间和精力</li>
+              </ul>
+            ),
+            placement: 'right',
+          },
+        ]}
+        onClose={() => {
+          /* do sth */
+        }}
+        afterStepChange={(nextIndex, nextStep) => {
+          /* do sth */
+        }}
+        closable={false}
+        stepText={(stepIndex, stepCount) => ''}
+        nextText="下一步"
+        // prevText="上一步"
+        // showPreviousBtn
+        okText="我知道了"
+      />
+      {couldStop && (
+        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={stopAll}>
+          <StopIcon />
+        </div>
+      )}
+      {!props.hitBottom && (
+        <div
+          className={`${chatStyle['chat-input-action']} clickable`}
+          onClick={props.scrollToBottom}
+        >
+          <BottomIcon />
+        </div>
+      )}
+      <div
+        className={`${chatStyle['chat-input-action']} clickable`}
+        onClick={selectImage}
+        id="thunderbolt-cat-mj-upload"
+      >
+        <input
+          type="file"
+          accept=".png,.jpg,.webp,.jpeg"
+          id="chat-image-file-select-upload"
+          style={{ display: 'none' }}
+          onChange={onImageSelected}
+        />
+        <UploadIcon />
+      </div>
+
+      <div
+        className={`${chatStyle['chat-input-action']} clickable mj-prompt-builder-btn`}
+        id="thunderbolt-cat-mj-prompt"
+      >
+        <PromptIcon />
+      </div>
+    </div>
+  );
 }
 
 export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean }) {
@@ -330,41 +455,28 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState('');
-  const [beforeInput, setBeforeInput] = useState('');
+  const [useImages, setUseImages] = useState<any[]>([]);
+  const [mjImageMode, setMjImageMode] = useState<string>('IMAGINE');
   const [isLoading, setIsLoading] = useState(false);
-  const { submitKey, shouldSubmit } = useSubmitHandler();
-  const { scrollRef, setAutoScroll } = useScrollToBottom();
+  const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(false);
 
   const toast = useToast();
 
   useEffect(() => {
-    if (session.promptId && session.messages.length === 0) {
-      chatStore.onUserInput('', toast);
+    if (session.promptId && session.messages.length === 0 && !session.midjourney) {
+      chatStore.onUserInput('', {
+        toast,
+        setAutoScroll,
+        midjourney: !!session.midjourney,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onChatBodyScroll = (e: HTMLElement) => {
-    const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 20;
+    const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 100;
     setHitBottom(isTouchBottom);
-  };
-
-  // prompt hints
-  const promptStore = usePromptStore();
-  const [promptHints, setPromptHints] = useState<Prompt[]>([]);
-  const onSearch = useDebouncedCallback(
-    (text: string) => {
-      setPromptHints(promptStore.search(text));
-    },
-    100,
-    { leading: true, trailing: true },
-  );
-
-  const onPromptSelect = (prompt: Prompt) => {
-    setUserInput(prompt.content);
-    setPromptHints([]);
-    inputRef.current?.focus();
   };
 
   const scrollInput = () => {
@@ -404,7 +516,6 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
 
     // clear search results
     if (n === 0) {
-      setPromptHints([]);
     } else if (!chatStore.config.disablePromptHint && n < SEARCH_TEXT_LIMIT) {
       // check if need to trigger auto completion
       // if (text.startsWith('/')) {
@@ -415,35 +526,59 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
   };
 
   // submit user input
-  const onUserSubmit = () => {
-    if (userInput.length <= 0) return;
-    const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
-    const encoded = tokenizer.encode(userInput);
-    const limitToken = 1000;
-    if (encoded.text.length > limitToken) {
-      toast({
-        title: `输入过长，最多只能输入${limitToken}个字符，当前输入了${encoded.text.length}个字符`,
-        status: 'warning',
-        duration: 9000,
-        isClosable: true,
-      });
-      return;
-    }
+  const doSubmit = async (userInput: string) => {
+    userInput = userInput.trim();
+    if (session.midjourney) {
+      if (useImages.length > 0 && mjImageMode === 'IMAGINE' && userInput == '') {
+        alert('垫图模式下需要输入内容才能使用图片，请以“/mj”开头输入内容');
+        return;
+      }
+    } else {
+      if (userInput == '') return;
 
+      const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
+      const encoded = tokenizer.encode(userInput);
+      const limitToken = 1000;
+      if (encoded.text.length > limitToken) {
+        toast({
+          title: `输入过长，最多只能输入${limitToken}个字符，当前输入了${encoded.text.length}个字符`,
+          status: 'warning',
+          duration: 9000,
+          isClosable: true,
+        });
+        return;
+      }
+    }
     setIsLoading(true);
-    chatStore.onUserInput(userInput, toast).then(() => setIsLoading(false));
-    setBeforeInput(userInput);
-    setUserInput('');
-    setPromptHints([]);
-    if (!isMobileScreen()) inputRef.current?.focus();
-    setAutoScroll(true);
+    try {
+      const res: any = await chatStore.onUserInput(userInput, {
+        midjourney: !!session.midjourney,
+        useImages,
+        mjImageMode,
+        setAutoScroll,
+        toast,
+      });
+      if (res !== false) {
+        localStorage.setItem(LAST_INPUT_KEY, userInput);
+        setUserInput('');
+        setUseImages([]);
+        setMjImageMode('IMAGINE');
+        if (!isMobileScreen) inputRef.current?.focus();
+        setAutoScroll(true);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onContinue = () => {
     setIsLoading(true);
-    chatStore.onUserInput('继续', toast).then(() => setIsLoading(false));
+    chatStore
+      .onUserInput('继续', { toast, midjourney: !!session.midjourney })
+      .then(() => setIsLoading(false));
     setUserInput('');
-    setPromptHints([]);
     if (!isMobileScreen()) inputRef.current?.focus();
     setAutoScroll(true);
   };
@@ -455,17 +590,6 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
 
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // // if ArrowUp and no userInput
-    // if (e.key === 'ArrowUp' && userInput.length <= 0) {
-    //   setUserInput(beforeInput);
-    //   e.preventDefault();
-    //   return;
-    // }
-    // if (shouldSubmit(e)) {
-    //   onUserSubmit();
-    //   e.preventDefault();
-    // }
-
     if (e.key == 'Enter' && e.shiftKey) {
       // 阻止原生的换行事件
       e.preventDefault();
@@ -474,15 +598,10 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
     } else if (e.key == 'Enter') {
       // 阻止原生的换行事件
       e.preventDefault();
-      onUserSubmit();
+      doSubmit(userInput);
     }
   };
   const onRightClick = (e: any, message: Message) => {
-    // auto fill user input
-    if (message.role === 'user') {
-      setUserInput(message.content);
-    }
-
     // copy to clipboard
     if (selectOrCopy(e.currentTarget, message.content)) {
       e.preventDefault();
@@ -494,7 +613,13 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
     for (let i = botIndex; i >= 0; i -= 1) {
       if (messages[i].role === 'user') {
         setIsLoading(true);
-        chatStore.onUserInput(messages[i].content, toast).then(() => setIsLoading(false));
+        chatStore
+          .onUserInput(messages[i].content, {
+            toast,
+            setAutoScroll,
+            midjourney: !!session.midjourney,
+          })
+          .then(() => setIsLoading(false));
         chatStore.updateCurrentSession((session) => session.messages.splice(i, 2));
         inputRef.current?.focus();
         return;
@@ -571,9 +696,11 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
           >
             {session.topic}
           </div>
-          <div className={styles['window-header-sub-title']}>
-            {`与 ChatGPT 的 ${session.messages.length} 条对话`}
-          </div>
+          {!session.midjourney && (
+            <div className={styles['window-header-sub-title']}>
+              {`与 ChatGPT 的 ${session.messages.length} 条对话`}
+            </div>
+          )}
         </div>
         <div className={styles['window-actions']}>
           <div className={styles['window-action-button'] + ' ' + styles.mobile}>
@@ -634,7 +761,14 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
             return (
               <div
                 key={i}
-                className={isUser ? styles['chat-message-user'] : styles['chat-message']}
+                className={
+                  isUser
+                    ? styles['chat-message-user']
+                    : [
+                        styles['chat-message'],
+                        message.model == 'midjourney' ? styles['chat-model-mj'] : '',
+                      ].join('')
+                }
               >
                 <div className={styles['chat-message-container']}>
                   <div className={styles['chat-message-avatar']}>
@@ -670,22 +804,102 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                         </div>
                       </div>
                     )}
-                    {(message.preview || message.content.length === 0) && !isUser ? (
-                      <LoadingIcon />
-                    ) : (
+                    <Markdown
+                      content={message.content}
+                      loading={
+                        (message.preview || message.content.length === 0) && !isUser
+                      }
+                      onContextMenu={(e) => onRightClick(e, message)}
+                      onDoubleClickCapture={() => {
+                        if (!isMobileScreen) return;
+                        setUserInput(message.content);
+                      }}
+                      fontSize={fontSize}
+                      parentRef={scrollRef}
+                      defaultShow={i >= messages.length - 10}
+                    />
+                  </div>
+                  {!isUser &&
+                    message.model == 'midjourney' &&
+                    message.attr?.finished &&
+                    ['VARIATION', 'IMAGINE'].includes(message.attr?.action) && (
                       <div
-                        className="markdown-body"
-                        style={{ fontSize: `${fontSize}px` }}
-                        onContextMenu={(e) => onRightClick(e, message)}
-                        onDoubleClickCapture={() => {
-                          if (!isMobileScreen()) return;
-                          setUserInput(message.content);
-                        }}
+                        className={[
+                          styles['chat-message-actions'],
+                          styles['column-flex'],
+                        ].join(' ')}
                       >
-                        <Markdown content={message.content} />
+                        <div>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj UPSCALE::1::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            U1
+                          </button>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj UPSCALE::2::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            U2
+                          </button>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj UPSCALE::3::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            U3
+                          </button>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj UPSCALE::4::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            U4
+                          </button>
+                          {/*<button onClick={() => doSubmit(`/mj REROLL::0::${message.attr.taskId}`)} className={`${styles["chat-message-action-btn"]} clickable`}>RESET</button>*/}
+                        </div>
+                        <div>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj VARIATION::1::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            V1
+                          </button>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj VARIATION::2::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            V2
+                          </button>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj VARIATION::3::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            V3
+                          </button>
+                          <button
+                            onClick={() =>
+                              doSubmit(`/mj VARIATION::4::${message.attr.taskId}`)
+                            }
+                            className={`${styles['chat-message-action-btn']} clickable`}
+                          >
+                            V4
+                          </button>
+                        </div>
                       </div>
                     )}
-                  </div>
                   {!isUser && !message.preview && (
                     <div className={styles['chat-message-actions']}>
                       <div className={styles['chat-message-action-date']}>
@@ -700,37 +914,96 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
       </div>
 
       <div className={styles['chat-input-panel']}>
-        <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
+        {session.midjourney && (
+          <>
+            <ChatActions
+              scrollToBottom={scrollToBottom}
+              hitBottom={hitBottom}
+              imageSelected={(img: any) => {
+                if (useImages.length >= 2) {
+                  alert(`最多可选择 2 张图片`);
+                  return;
+                }
+                setUseImages([...useImages, img]);
+              }}
+              onInput={onInput}
+            />
+            {useImages.length > 0 && (
+              <div className={styles['chat-select-images']}>
+                {useImages.map((img: any, i) => (
+                  <img
+                    src={img.base64}
+                    key={i}
+                    onClick={() => {
+                      setUseImages(useImages.filter((_, ii) => ii != i));
+                    }}
+                    title={img.filename}
+                    alt={img.filename}
+                  />
+                ))}
+                <div style={{ fontSize: '12px', marginBottom: '5px' }}>
+                  {[
+                    { name: '垫图（图生图）模式', value: 'IMAGINE' },
+                    { name: '混图模式', value: 'BLEND' },
+                    { name: '识图（图生文）模式', value: 'DESCRIBE' },
+                  ].map((item, i) => (
+                    <label key={i}>
+                      <input
+                        type="radio"
+                        name="mj-img-mode"
+                        checked={mjImageMode == item.value}
+                        value={item.value}
+                        onChange={(e) => {
+                          setMjImageMode(e.target.value);
+                        }}
+                      />
+                      <span>{item.name}</span>
+                    </label>
+                  ))}
+                </div>
+                <div style={{ fontSize: '12px' }}>
+                  <small>
+                    提示：垫图模式/识图(describe)模式只会使用第一张图片，混图(blend)模式会按顺序使用选中的两张图片（点击图片可以移除）
+                  </small>
+                </div>
+              </div>
+            )}
+          </>
+        )}
         <div className={styles['chat-input-panel-inner']}>
           <textarea
+            id="chat-input"
             ref={inputRef}
-            maxLength={2000}
             className={styles['chat-input']}
-            placeholder={'Enter 发送，Shift + Enter 换行'}
+            placeholder={
+              useImages.length > 0 && mjImageMode != 'IMAGINE'
+                ? '该模式下不支持输入内容'
+                : 'Enter 发送，Shift + Enter 换行'
+            }
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
             onFocus={() => setAutoScroll(true)}
-            onBlur={() => {
-              setAutoScroll(false);
-              // setTimeout(() => setPromptHints([]), 500);
-            }}
+            onBlur={() => setAutoScroll(false)}
             autoFocus={!props?.sideBarShowing}
             rows={inputRows}
+            disabled={useImages.length > 0 && mjImageMode != 'IMAGINE'}
           />
-          <IconButton
-            icon={<ContinueIcon />}
-            text={'继续'}
-            className={styles['chat-input-continue']}
-            noDark
-            onClick={onContinue}
-          />
+          {!session.midjourney && (
+            <IconButton
+              icon={<ContinueIcon />}
+              text={'继续'}
+              className={styles['chat-input-continue']}
+              noDark
+              onClick={onContinue}
+            />
+          )}
           <IconButton
             icon={<SendWhiteIcon />}
             text={'发送'}
             className={styles['chat-input-send']}
             noDark
-            onClick={onUserSubmit}
+            onClick={() => doSubmit(userInput)}
           />
         </div>
       </div>

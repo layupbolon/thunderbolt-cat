@@ -92,6 +92,11 @@ export default function SimpleCard() {
                 type="password"
                 value={pwd}
                 onChange={(e) => setPwd(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.code === 'Enter') {
+                    handleLogin();
+                  }
+                }}
               />
             </FormControl>
             <Stack spacing={10}>

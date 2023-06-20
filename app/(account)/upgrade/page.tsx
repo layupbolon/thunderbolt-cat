@@ -69,7 +69,7 @@ export default function UpgradePackageList() {
             </Text>
             <Text fontSize="2xl" color="cyan.200">
               /
-              {pkg.type === 1 || pkg.type === 3
+              {pkg.type === 1 || pkg.type === 3 || pkg.type === 4
                 ? `${pkg.count}次`
                 : pkg.type === 2
                 ? `${pkg.day}天`

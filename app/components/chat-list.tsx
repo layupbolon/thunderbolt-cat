@@ -14,6 +14,7 @@ export function ChatItem(props: {
   onDelete?: () => void;
   title: string;
   model: GPTModel;
+  midjourney: boolean;
   count: number;
   time: string;
   selected: boolean;
@@ -35,6 +36,7 @@ export function ChatItem(props: {
           {props.model === GPTModel.GPT4 && (
             <div className={styles['chat-model']}>{props.model}</div>
           )}
+          {props.midjourney && <div className={styles['chat-model']}>AI绘画</div>}
           <div className={styles['chat-item-title']}>{props.title}</div>
           <div className={styles['chat-item-info']}>
             <div className={styles['chat-item-count']}>{`${props.count} 条对话`}</div>
@@ -96,6 +98,7 @@ export function ChatList() {
               <ChatItem
                 title={item.topic}
                 model={item.gptModel}
+                midjourney={item.midjourney}
                 time={item.lastUpdate}
                 count={item.messages.length}
                 key={item.id}

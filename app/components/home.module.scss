@@ -370,10 +370,48 @@
   padding-top: 5px;
   box-sizing: border-box;
   font-size: 12px;
+  &.column-flex{
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+  }
 }
 
 .chat-message-action-date {
   color: #aaa;
+}
+
+.chat-model-mj{
+  img{
+    width: 280px;
+  }
+}
+
+.chat-message-action-btn{
+  font-size: 12px;
+  background-color: var(--white);
+  color: var(--black);
+
+  border: var(--border-in-light);
+  box-shadow: var(--card-shadow);
+  padding: 8px 16px;
+  border-radius: 16px;
+
+  animation: slide-in-from-top ease 0.3s;
+  transition: all .3s;
+  cursor: pointer;
+  margin: 2px 2px;
+}
+
+.chat-select-images{
+  margin-bottom: 10px;
+  img{
+    width:80px;
+    height: 80px;
+    margin: 0 5px;
+    border-radius: 10px;
+    border:1px dashed var(--color-border-muted);
+  }
 }
 
 .chat-input-panel {
