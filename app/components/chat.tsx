@@ -778,32 +778,34 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                     <div className={styles['chat-message-status']}>正在输入…</div>
                   )}
                   <div className={styles['chat-message-item']}>
-                    {!isUser && !(message.preview || message.content.length === 0) && (
-                      <div className={styles['chat-message-top-actions']}>
-                        {message.streaming ? (
-                          <div
-                            className={styles['chat-message-top-action']}
-                            onClick={() => onUserStop(message.id ?? i)}
-                          >
-                            停止
-                          </div>
-                        ) : (
-                          <div
-                            className={styles['chat-message-top-action']}
-                            onClick={() => onResend(i)}
-                          >
-                            重试
-                          </div>
-                        )}
+                    {!isUser &&
+                      !(message.preview || message.content.length === 0) &&
+                      !session.midjourney && (
+                        <div className={styles['chat-message-top-actions']}>
+                          {message.streaming ? (
+                            <div
+                              className={styles['chat-message-top-action']}
+                              onClick={() => onUserStop(message.id ?? i)}
+                            >
+                              停止
+                            </div>
+                          ) : (
+                            <div
+                              className={styles['chat-message-top-action']}
+                              onClick={() => onResend(i)}
+                            >
+                              重试
+                            </div>
+                          )}
 
-                        <div
-                          className={styles['chat-message-top-action']}
-                          onClick={() => copyToClipboard(message.content)}
-                        >
-                          复制
+                          <div
+                            className={styles['chat-message-top-action']}
+                            onClick={() => copyToClipboard(message.content)}
+                          >
+                            复制
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                     <Markdown
                       content={message.content}
                       loading={
