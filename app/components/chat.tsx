@@ -767,7 +767,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                     : [
                         styles['chat-message'],
                         message.model == 'midjourney' ? styles['chat-model-mj'] : '',
-                      ].join('')
+                      ].join(' ')
                 }
               >
                 <div className={styles['chat-message-container']}>
@@ -811,7 +811,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                       }
                       onContextMenu={(e) => onRightClick(e, message)}
                       onDoubleClickCapture={() => {
-                        if (!isMobileScreen) return;
+                        if (!isMobileScreen || session.midjourney) return;
                         setUserInput(message.content);
                       }}
                       fontSize={fontSize}
