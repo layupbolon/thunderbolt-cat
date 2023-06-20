@@ -349,7 +349,7 @@ export function ChatActions(props: {
     const handleMessage = (event: any) => {
       if (event.origin === 'https://punk.openai1s.com') {
         let prompt = event.data;
-        console.log(prompt, '打印加工后的prompt');
+        // console.log(prompt, '打印加工后的prompt');
         if (prompt.startsWith('/imagine prompt: ')) {
           prompt = prompt.replace('/imagine prompt: ', '');
         }
