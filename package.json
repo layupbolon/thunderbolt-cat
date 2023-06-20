@@ -5,7 +5,7 @@
   "license": "Anti 996",
   "scripts": {
     "dev": "next dev",
-    "build": "set NODE_OPTIONS=--max-old-space-size=8192 && next build",
+    "build": "set NODE_OPTIONS=--max-old-space-size=16192 && next build",
     "start": "next start -p 8000",
     "lint": "next lint",
     "fetch": "node ./scripts/fetch-prompts.mjs",
