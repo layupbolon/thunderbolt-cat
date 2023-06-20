@@ -7,8 +7,6 @@ const url = `http://${host}:${port}`
 const nextConfig = {
   experimental: {
     appDir: true,
-    esmExternals:false,
-    webpackBuildWorker: true
   },
   webpack(config) {
     config.module.rules.push({
