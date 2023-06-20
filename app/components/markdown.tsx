@@ -102,9 +102,45 @@ function _MarkDownContent(props: { content: string }) {
       components={{
         pre: PreCode,
         a: (aProps) => {
-          const href = aProps.href || '';
-          const isInternal = /^\/#/i.test(href);
+          const { href, ...rest } = aProps;
+          const isInternal = /^\/#/i.test(href ?? '');
           const target = isInternal ? '_self' : aProps.target ?? '_blank';
+          if (href?.includes('https://cdn.discordapp.com/')) {
+            return (
+              <a
+                {...rest}
+                onClick={(e) => {
+                  let image = new Image(); //创建图片对象
+                  image.setAttribute('crossOrigin', 'anonymous'); //设置允许跨域
+                  image.src = href; //赋值src
+                  image.onload = () => {
+                    //等待图片加载完成创建canvas
+                    let canvas = document.createElement('canvas');
+                    //将图片绘制到canvas画布上
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    let ctx = canvas.getContext('2d');
+                    ctx.drawImage(image, 0, 0, image.width, image.height);
+                    //此处同样是利用canvas自带API将画布数据导出为bolb流格式
+                    canvas.toBlob((blob) => {
+                      let url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+
+                      var tmpUrl = new URL(href);
+                      var filename = tmpUrl.pathname.split('/').pop();
+                      a.download = filename ?? 'thunderbolt-cat.png';
+                      // 直接将canvas导出的bolb:URL 格式赋值为a标签的href属性 同样进行点击触发下载
+                      a.href = url;
+                      document.body.appendChild(a);
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      document.body.removeChild(a);
+                    });
+                  };
+                }}
+              />
+            );
+          }
           return <a {...aProps} target={target} />;
         },
       }}
@@ -166,6 +202,7 @@ export function Markdown(
       onContextMenu={props.onContextMenu}
       onDoubleClickCapture={props.onDoubleClickCapture}
     >
+      <iframe id="a-download-in-markdown" style={{ display: 'none' }}></iframe>
       {inView.current &&
         (props.loading ? <LoadingIcon /> : <MarkdownContent content={props.content} />)}
     </div>
