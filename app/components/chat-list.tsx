@@ -98,7 +98,7 @@ export function ChatList() {
               <ChatItem
                 title={item.topic}
                 model={item.gptModel}
-                midjourney={item.midjourney}
+                midjourney={!!item.midjourney}
                 time={item.lastUpdate}
                 count={item.messages.length}
                 key={item.id}
