@@ -120,9 +120,11 @@ function _MarkDownContent(props: { content: string }) {
                     canvas.width = image.width;
                     canvas.height = image.height;
                     let ctx = canvas.getContext('2d');
+                    if (!ctx) return;
                     ctx.drawImage(image, 0, 0, image.width, image.height);
                     //此处同样是利用canvas自带API将画布数据导出为bolb流格式
                     canvas.toBlob((blob) => {
+                      if (!blob) return;
                       let url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
 
