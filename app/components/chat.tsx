@@ -369,7 +369,7 @@ export function ChatActions(props: {
   return (
     <div className={chatStyle['chat-input-actions']}>
       <Guide
-        // localKey="thunderbolt-cat-guide"
+        localKey="thunderbolt-cat-guide"
         steps={[
           {
             selector: '#thunderbolt-cat-mj-upload',
