@@ -240,6 +240,7 @@ export const Prompts: React.FC = () => {
                     createNewSession({
                       promptId: prompt.id + '',
                       promptRule: prompt.act,
+                      midjourney: false,
                     });
                     updateCurrentSession((session) => {
                       session.slotFields = {};
@@ -342,6 +343,7 @@ export const Prompts: React.FC = () => {
                 createNewSession({
                   promptId: currentPrompt!.id + '',
                   promptRule: currentPrompt!.act,
+                  midjourney: false,
                 });
                 updateCurrentSession((session) => {
                   session.slotFields = slotFields;
