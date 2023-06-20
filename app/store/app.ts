@@ -641,7 +641,7 @@ export const useChatStore = create<ChatStore>()(
                           }`;
                           break;
                         case 'SUBMITTED':
-                          content = '任务已提交至Midjourney服务器';
+                          content = '任务已提交至服务器';
                           break;
                         default:
                           content = statusResJson.status;
