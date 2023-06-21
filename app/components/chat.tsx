@@ -815,7 +815,10 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                         (message.preview || message.content.length === 0) && !isUser
                       }
                       onContextMenu={(e) => {
-                        if (session.midjourney) return;
+                        if (session.midjourney) {
+                          e.preventDefault();
+                          return;
+                        }
                         onRightClick(e, message);
                       }}
                       onDoubleClickCapture={() => {
