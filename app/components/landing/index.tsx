@@ -47,8 +47,8 @@ export const Landing = () => {
               router.push('/prompt');
             }}
           >
-            {/* AI 智能机器人 */}
-            立即使用
+            AI 智能机器人
+            {/* 立即使用 */}
           </Button>
           <Button
             size={'lg'}
