@@ -48,7 +48,6 @@ export const Landing = () => {
             }}
           >
             AI 智能机器人
-            {/* 立即使用 */}
           </Button>
           <Button
             size={'lg'}

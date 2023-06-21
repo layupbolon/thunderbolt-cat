@@ -11,7 +11,7 @@ import { TOKEN_STORAGE_KEY } from '../constant';
 import { middleware } from '../../middleware';
 
 function useGetMidjourneySelfProxyUrl(url: string) {
-  return url.replace('https://cdn.discordapp.com', '/api/cnd-discordapp');
+  return `https://images.weserv.nl?url=${url}`;
 }
 
 export type Message = ChatCompletionResponseMessage & {
