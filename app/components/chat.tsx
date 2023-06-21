@@ -814,7 +814,10 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                       loading={
                         (message.preview || message.content.length === 0) && !isUser
                       }
-                      onContextMenu={(e) => onRightClick(e, message)}
+                      onContextMenu={(e) => {
+                        if (session.midjourney) return;
+                        onRightClick(e, message);
+                      }}
                       onDoubleClickCapture={() => {
                         if (!isMobileScreen || session.midjourney) return;
                         setUserInput(message.content);
