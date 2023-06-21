@@ -50,7 +50,7 @@ export const Landing = () => {
             {/* AI 智能机器人 */}
             立即使用
           </Button>
-          {/* <Button
+          <Button
             size={'lg'}
             rightIcon={<ArrowForwardIcon />}
             colorScheme="teal"
@@ -78,7 +78,7 @@ export const Landing = () => {
             ml={4}
           >
             AI 绘画
-          </Button> */}
+          </Button>
         </div>
       </div>
     </div>

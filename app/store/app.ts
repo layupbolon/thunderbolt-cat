@@ -10,6 +10,10 @@ import { showToast } from '../components/ui-lib';
 import { TOKEN_STORAGE_KEY } from '../constant';
 import { middleware } from '../../middleware';
 
+function useGetMidjourneySelfProxyUrl(url: string) {
+  return url.replace('https://cdn.discordapp.com', '/api/cnd-discordapp');
+}
+
 export type Message = ChatCompletionResponseMessage & {
   date: string;
   streaming?: boolean;
@@ -611,10 +615,10 @@ export const useChatStore = create<ChatStore>()(
                           content = statusResJson.imageUrl;
                           isFinished = true;
                           if (statusResJson.imageUrl) {
-                            // let imgUrl = useGetMidjourneySelfProxyUrl(
-                            //   statusResJson.imageUrl,
-                            // );
-                            let imgUrl = statusResJson.imageUrl;
+                            let imgUrl = useGetMidjourneySelfProxyUrl(
+                              statusResJson.imageUrl,
+                            );
+                            // let imgUrl = statusResJson.imageUrl;
                             botMessage.attr.imgUrl = imgUrl;
                             botMessage.content =
                               prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
@@ -657,10 +661,10 @@ export const useChatStore = create<ChatStore>()(
                           statusResJson.status === 'IN_PROGRESS' &&
                           statusResJson.imageUrl
                         ) {
-                          // let imgUrl = useGetMidjourneySelfProxyUrl(
-                          //   statusResJson.imageUrl,
-                          // );
-                          let imgUrl = statusResJson.imageUrl;
+                          let imgUrl = useGetMidjourneySelfProxyUrl(
+                            statusResJson.imageUrl,
+                          );
+                          // let imgUrl = statusResJson.imageUrl;
                           botMessage.attr.imgUrl = imgUrl;
                           botMessage.content += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
                         }
