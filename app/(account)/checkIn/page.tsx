@@ -112,10 +112,11 @@ const SevenDayCheckIn: React.FC<CheckInItermProps> = (props) => {
       <Button
         isDisabled={
           !(
-            props.checkInInfo.sevenDay === 7 &&
-            props.checkInInfo.fourteenDay === 7 &&
-            props.checkInInfo.twentyOne === 7 &&
-            props.checkInInfo.twentyEight === 7
+            (props.checkInInfo.sevenDay === 7)
+            // &&
+            // props.checkInInfo.fourteenDay === 7 &&
+            // props.checkInInfo.twentyOne === 7 &&
+            // props.checkInInfo.twentyEight === 7
           )
         }
         colorScheme="yellow"
@@ -161,9 +162,10 @@ const FourteenDayCheckIn: React.FC<CheckInItermProps> = (props) => {
         colorScheme="yellow"
         isDisabled={
           !(
-            props.checkInInfo.fourteenDay === 14 &&
-            props.checkInInfo.twentyOne === 14 &&
-            props.checkInInfo.twentyEight === 14
+            (props.checkInInfo.fourteenDay === 14)
+            // &&
+            // props.checkInInfo.twentyOne === 14 &&
+            // props.checkInInfo.twentyEight === 14
           )
         }
         onClick={() => {
@@ -207,7 +209,10 @@ const TwentyOneCheckIn: React.FC<CheckInItermProps> = (props) => {
       <Button
         colorScheme="yellow"
         isDisabled={
-          !(props.checkInInfo.twentyOne === 21 && props.checkInInfo.twentyEight === 21)
+          !(
+            (props.checkInInfo.twentyOne === 21)
+            // && props.checkInInfo.twentyEight === 21
+          )
         }
         onClick={() => {
           receivePoints(3)

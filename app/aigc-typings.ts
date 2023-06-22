@@ -95,6 +95,7 @@ export interface PackageInfo {
   type: number;
   count: number;
   day: number;
+  imageCount: number;
   createTime: number[];
   updateTime: number[];
 }
