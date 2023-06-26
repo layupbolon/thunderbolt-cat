@@ -219,7 +219,10 @@ function createEmptySession(selectedPrompt?: {
   };
 }
 
+const ChatFetchTaskPool: Record<string, any> = {};
+
 interface ChatStore {
+  fetchMidjourneyStatus(botMessage: Message, extAttr?: any): void;
   config: ChatConfig;
   sessions: ChatSession[];
   currentSessionIndex: number;
@@ -406,6 +409,91 @@ export const useChatStore = create<ChatStore>()(
         get().summarizeSession();
       },
 
+      fetchMidjourneyStatus(botMessage: Message, extAttr?: any) {
+        const taskId = botMessage?.attr?.taskId;
+        if (
+          !taskId ||
+          ['SUCCESS', 'FAILURE'].includes(botMessage?.attr?.status) ||
+          ChatFetchTaskPool[taskId]
+        ) {
+          return;
+        }
+        ChatFetchTaskPool[taskId] = setTimeout(async () => {
+          ChatFetchTaskPool[taskId] = null;
+          const statusRes = await fetch(`/api/midjourney/mj/task/${taskId}/fetch`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              token: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
+            },
+          });
+          const statusResJson = await statusRes.json();
+          if (statusRes.status < 200 || statusRes.status >= 300) {
+            botMessage.content = `任务状态获取失败 : ${
+              statusResJson?.error || statusResJson?.description || '未知原因'
+            }`;
+          } else {
+            let isFinished = false;
+            let content;
+            const prefixContent = `**画面描述:** ${statusResJson.prompt}\n**任务ID:** ${taskId}\n`;
+
+            switch (statusResJson?.status) {
+              case 'SUCCESS':
+                content = statusResJson.imageUrl;
+                isFinished = true;
+                if (statusResJson.imageUrl) {
+                  let imgUrl = useGetMidjourneySelfProxyUrl(statusResJson.imageUrl);
+                  botMessage.attr.imgUrl = imgUrl;
+                  botMessage.content =
+                    prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
+                }
+                if (statusResJson.action === 'DESCRIBE' && statusResJson.prompt) {
+                  botMessage.content += `\n${statusResJson.prompt}`;
+                }
+                break;
+              case 'FAILURE':
+                content = statusResJson.failReason || '未知原因';
+                isFinished = true;
+                botMessage.content =
+                  prefixContent +
+                  `**任务状态:** [${new Date().toLocaleString()}] - ${content}`;
+                break;
+              case 'NOT_START':
+                content = '任务尚未开始';
+                break;
+              case 'IN_PROGRESS':
+                content = `任务正在运行${
+                  statusResJson.progress ? `，当前进度：${statusResJson.progress}` : ''
+                }`;
+                break;
+              case 'SUBMITTED':
+                content = '任务已提交至服务器';
+                break;
+              default:
+                content = statusResJson.status;
+            }
+            botMessage.attr.status = statusResJson.status;
+            if (isFinished) {
+              botMessage.attr.finished = true;
+            } else {
+              botMessage.content =
+                prefixContent +
+                `**任务状态:** [${new Date().toLocaleString()}] - ${content}`;
+              if (statusResJson.status === 'IN_PROGRESS' && statusResJson.imageUrl) {
+                let imgUrl = useGetMidjourneySelfProxyUrl(statusResJson.imageUrl);
+                botMessage.attr.imgUrl = imgUrl;
+                botMessage.content += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
+              }
+              this.fetchMidjourneyStatus(taskId, botMessage);
+            }
+            set(() => ({}));
+            if (isFinished) {
+              extAttr?.setAutoScroll(true);
+            }
+          }
+        }, 3000);
+      },
+
       async onUserInput(
         content,
         extAttr?: {
@@ -413,13 +501,17 @@ export const useChatStore = create<ChatStore>()(
           midjourney: boolean;
         } & Record<string, any>,
       ) {
+        console.log('extAttr: ', extAttr);
         if (
           extAttr?.mjImageMode &&
           (extAttr?.useImages?.length ?? 0) > 0 &&
           extAttr.mjImageMode !== 'IMAGINE'
         ) {
-          if (extAttr.mjImageMode === 'BLEND' && extAttr.useImages.length < 2) {
-            alert('混图模式下至少需要 2 张图片');
+          if (
+            extAttr.mjImageMode === 'BLEND' &&
+            (extAttr.useImages.length < 2 || extAttr.useImages.length > 5)
+          ) {
+            alert('混图模式下至少需要 2 张图片，至多 5 张图片');
             return new Promise((resolve: any, reject) => {
               resolve(false);
             });
@@ -530,7 +622,10 @@ export const useChatStore = create<ChatStore>()(
                       base64Array: [
                         extAttr?.useImages[0].base64,
                         extAttr?.useImages[1].base64,
-                      ],
+                        extAttr?.useImages?.[2]?.base64,
+                        extAttr?.useImages?.[3]?.base64,
+                        extAttr?.useImages?.[4]?.base64,
+                      ].filter((t) => t),
                     }),
                   );
                   break;
@@ -590,94 +685,8 @@ export const useChatStore = create<ChatStore>()(
                     `[${new Date().toLocaleString()}] - 任务提交成功: ` +
                     resJson?.description || '请稍等片刻';
                 botMessage.attr.taskId = taskId;
-                const fetchStatus = (taskId: string) => {
-                  setTimeout(async () => {
-                    const statusRes = await fetch(
-                      `/api/midjourney/mj/task/${taskId}/fetch`,
-                      {
-                        method: 'GET',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          token: window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? '',
-                        },
-                      },
-                    );
-                    const statusResJson = await statusRes.json();
-                    if (statusRes.status < 200 || statusRes.status >= 300) {
-                      botMessage.content = `任务状态获取失败 : ${
-                        resJson?.error || resJson?.description || '未知原因'
-                      }`;
-                    } else {
-                      let isFinished = false;
-                      let content;
-                      switch (statusResJson?.status) {
-                        case 'SUCCESS':
-                          content = statusResJson.imageUrl;
-                          isFinished = true;
-                          if (statusResJson.imageUrl) {
-                            let imgUrl = useGetMidjourneySelfProxyUrl(
-                              statusResJson.imageUrl,
-                            );
-                            // let imgUrl = statusResJson.imageUrl;
-                            botMessage.attr.imgUrl = imgUrl;
-                            botMessage.content =
-                              prefixContent + `[![${taskId}](${imgUrl})](${imgUrl})`;
-                          }
-                          if (action === 'DESCRIBE' && statusResJson.prompt) {
-                            botMessage.content += `\n${statusResJson.prompt}`;
-                          }
-                          break;
-                        case 'FAILURE':
-                          content = statusResJson.failReason || '未知原因';
-                          isFinished = true;
-                          botMessage.content =
-                            prefixContent +
-                            `**任务状态:** [${new Date().toLocaleString()}] - ${content}`;
-                          break;
-                        case 'NOT_START':
-                          content = '任务尚未开始';
-                          break;
-                        case 'IN_PROGRESS':
-                          content = `任务正在运行${
-                            statusResJson.progress
-                              ? `，当前进度：${statusResJson.progress}`
-                              : ''
-                          }`;
-                          break;
-                        case 'SUBMITTED':
-                          content = '任务已提交至服务器';
-                          break;
-                        default:
-                          content = statusResJson.status;
-                      }
-                      botMessage.attr.status = statusResJson.status;
-                      if (isFinished) {
-                        botMessage.attr.finished = true;
-                      } else {
-                        botMessage.content =
-                          prefixContent +
-                          `**任务状态:** [${new Date().toLocaleString()}] - ${content}`;
-                        if (
-                          statusResJson.status === 'IN_PROGRESS' &&
-                          statusResJson.imageUrl
-                        ) {
-                          let imgUrl = useGetMidjourneySelfProxyUrl(
-                            statusResJson.imageUrl,
-                          );
-                          // let imgUrl = statusResJson.imageUrl;
-                          botMessage.attr.imgUrl = imgUrl;
-                          botMessage.content += `\n[![${taskId}](${imgUrl})](${imgUrl})`;
-                        }
-                        fetchStatus(taskId);
-                      }
-                      set(() => ({}));
-                      if (isFinished) {
-                        extAttr?.setAutoScroll(true);
-                      }
-                    }
-                  }, 3000);
-                };
-                fetchStatus(taskId);
+                botMessage.attr.status = resJson.status;
+                this.fetchMidjourneyStatus(botMessage, extAttr);
               }
             } catch (e: any) {
               botMessage.content = `任务提交失败：${

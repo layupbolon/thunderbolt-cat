@@ -681,6 +681,12 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  messages?.forEach((msg) => {
+    if (msg.model === 'midjourney' && msg.attr.taskId) {
+      chatStore.fetchMidjourneyStatus(msg);
+    }
+  });
+
   return (
     <div className={styles.chat} key={session.id}>
       <div className={styles['window-header']}>
@@ -833,7 +839,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                   {!isUser &&
                     message.model == 'midjourney' &&
                     message.attr?.finished &&
-                    ['VARIATION', 'IMAGINE'].includes(message.attr?.action) && (
+                    ['VARIATION', 'IMAGINE', 'BLEND'].includes(message.attr?.action) && (
                       <div
                         className={[
                           styles['chat-message-actions'],
@@ -923,8 +929,8 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
               scrollToBottom={scrollToBottom}
               hitBottom={hitBottom}
               imageSelected={(img: any) => {
-                if (useImages.length >= 2) {
-                  alert(`最多可选择 2 张图片`);
+                if (useImages.length >= 5) {
+                  alert(`最多可选择 5 张图片`);
                   return;
                 }
                 setUseImages([...useImages, img]);
@@ -966,7 +972,7 @@ export function Chat(props: { showSideBar?: () => void; sideBarShowing?: boolean
                 </div>
                 <div style={{ fontSize: '12px' }}>
                   <small>
-                    提示：垫图模式/识图(describe)模式只会使用第一张图片，混图(blend)模式会按顺序使用选中的两张图片（点击图片可以移除）
+                    提示：垫图模式/识图(describe)模式只会使用第一张图片，混图(blend)模式会按顺序使用选中的5张图片（点击图片可以移除）
                   </small>
                 </div>
               </div>
