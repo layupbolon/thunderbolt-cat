@@ -7,27 +7,20 @@ import './styles/globals.scss';
 import './styles/markdown.scss';
 import './styles/highlight.scss';
 
-// export const metadata = {
-//   title: "聊天熊猫",
-//   description:
-//     "聊天熊猫,ChatGPT国内版,AI中文智能对话,ChatGPT免登录,ChatGPT免注册,与Ai对话",
-//   keywords:
-//     "聊天熊猫,ChatGPT,人工智能ChatGPT,聊天机器人ChatGPT,ChatGPT免费,ChatGPT在线体验,ChatGPT官网,ChatGPT登录,ChatGPT注册,ChatGPT地址,AI Chat",
-//   appleWebApp: {
-//     title: "聊天熊猫",
-//     statusBarStyle: "black-translucent",
-//   },
-//   themeColor: "#fafafa",
-// };
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
         <meta
+          name="description"
+          content="霹雳猫, AI中文智能对话, AI绘画, 与AI对话"
+        ></meta>
+        <meta name="keywords" content="霹雳猫 人工智能 聊天机器人 AI Chat 绘画"></meta>
+        <meta
           name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
         />
+        <title>霹雳猫</title>
         <meta name="theme-color" content="#151515" media="(prefers-color-scheme: dark)" />
         <link rel="manifest" href="/site.webmanifest"></link>
         <link rel="preconnect" href="https://fonts.googleapis.com"></link>
